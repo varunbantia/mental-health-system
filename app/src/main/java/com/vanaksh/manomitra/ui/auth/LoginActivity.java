@@ -1,6 +1,7 @@
 package com.vanaksh.manomitra.ui.auth;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -25,6 +26,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.vanaksh.manomitra.MainActivity;
 import com.vanaksh.manomitra.R;
 import com.vanaksh.manomitra.databinding.ActivityLoginBinding;
+import com.vanaksh.manomitra.ui.dashboard.DashboardActivity;
 
 import java.util.concurrent.Executors;
 
@@ -38,8 +40,9 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+        // Check if user is already signed in
         if (FirebaseAuth.getInstance().getCurrentUser() != null) {
-            navigateToHome();
+            checkDisclaimerAndNavigate();
         }
     }
 
@@ -59,11 +62,11 @@ public class LoginActivity extends AppCompatActivity {
         binding.btnAnonymous.setOnClickListener(v -> loginAnonymously());
         binding.btnGoogle.setOnClickListener(v -> launchGoogleSignIn());
 
-        // 1. REDIRECT TO SIGNUP: Added listener for the "New here?" text
         binding.tvCreateAccount.setOnClickListener(v -> {
             Intent intent = new Intent(LoginActivity.this, SignupActivity.class);
             startActivity(intent);
         });
+
         binding.tvForgotPassword.setOnClickListener(v -> {
             Intent intent = new Intent(LoginActivity.this, ForgotPasswordActivity.class);
             startActivity(intent);
@@ -95,7 +98,6 @@ public class LoginActivity extends AppCompatActivity {
                         String email = queryDocumentSnapshots.getDocuments().get(0).getString("email");
                         signInWithEmail(email, password);
                     } else {
-                        // 2. REDIRECT ON NO ACCOUNT: If phone isn't found, suggest signup
                         Toast.makeText(this, "No account found. Redirecting to Signup...", Toast.LENGTH_SHORT).show();
                         startActivity(new Intent(this, SignupActivity.class));
                     }
@@ -105,7 +107,7 @@ public class LoginActivity extends AppCompatActivity {
     private void signInWithEmail(String email, String password) {
         mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) navigateToHome();
+                    if (task.isSuccessful()) checkDisclaimerAndNavigate();
                     else Toast.makeText(this, "Auth Failed", Toast.LENGTH_SHORT).show();
                 });
     }
@@ -139,10 +141,10 @@ public class LoginActivity extends AppCompatActivity {
             GoogleIdTokenCredential tokenCredential = GoogleIdTokenCredential.createFrom(credential.getData());
             AuthCredential firebaseCred = GoogleAuthProvider.getCredential(tokenCredential.getIdToken(), null);
 
-            // 3. PREVENT MULTIPLE ACCOUNTS: Check if email exists before finalizing
             mAuth.signInWithCredential(firebaseCred).addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
-                    checkIfUserExistsInFirestore(task.getResult().getUser());
+                    // Instead of just checking, we ensure the profile exists
+                    ensureGoogleUserHasProfile(task.getResult().getUser());
                 }
             });
         } catch (Exception e) {
@@ -150,15 +152,42 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
+    private void ensureGoogleUserHasProfile(FirebaseUser user) {
+        db.collection("users").document(user.getUid()).get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful() && task.getResult().exists()) {
+                        // Profile already exists, proceed to logic gate
+                        checkDisclaimerAndNavigate();
+                    } else {
+                        // NEW GOOGLE USER: Auto-create profile in Firestore
+                        java.util.Map<String, Object> userData = new java.util.HashMap<>();
+                        userData.put("name", user.getDisplayName());
+                        userData.put("email", user.getEmail());
+                        userData.put("phoneNumber", user.getPhoneNumber() != null ? user.getPhoneNumber() : "");
+                        userData.put("profilePic", user.getPhotoUrl() != null ? user.getPhotoUrl().toString() : "");
+                        userData.put("createdAt", com.google.firebase.Timestamp.now());
+
+                        db.collection("users").document(user.getUid())
+                                .set(userData)
+                                .addOnSuccessListener(aVoid -> {
+                                    Log.d("AUTH", "Auto-registration successful");
+                                    checkDisclaimerAndNavigate();
+                                })
+                                .addOnFailureListener(e -> {
+                                    Log.e("AUTH", "Auto-registration failed", e);
+                                    // Fallback: if auto-reg fails, we might still need the signup screen
+                                    checkDisclaimerAndNavigate();
+                                });
+                    }
+                });
+    }
+
     private void checkIfUserExistsInFirestore(FirebaseUser user) {
         db.collection("users").document(user.getUid()).get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful() && task.getResult().exists()) {
-                        // Existing user found
-                        navigateToHome();
+                        checkDisclaimerAndNavigate();
                     } else {
-                        // 4. NEW GOOGLE USER: If they don't have a Firestore doc, send to signup
-                        // to collect extra info (like phone) or create their profile.
                         Toast.makeText(this, "Please complete your registration", Toast.LENGTH_SHORT).show();
                         Intent intent = new Intent(this, SignupActivity.class);
                         intent.putExtra("email", user.getEmail());
@@ -169,12 +198,26 @@ public class LoginActivity extends AppCompatActivity {
 
     private void loginAnonymously() {
         mAuth.signInAnonymously().addOnCompleteListener(task -> {
-            if (task.isSuccessful()) navigateToHome();
+            if (task.isSuccessful()) checkDisclaimerAndNavigate();
         });
     }
 
-    private void navigateToHome() {
-        Intent intent = new Intent(this, MainActivity.class);
+    /**
+     * LOGIC GATE: Checks if disclaimer is accepted before going to Dashboard
+     */
+    private void checkDisclaimerAndNavigate() {
+        SharedPreferences prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE);
+        boolean isAccepted = prefs.getBoolean("disclaimer_accepted", false);
+
+        Intent intent;
+        if (isAccepted) {
+            // User is safe, go to Dashboard (MainActivity)
+            intent = new Intent(LoginActivity.this, DashboardActivity.class);
+        } else {
+            // User hasn't agreed, go to Disclaimer
+            intent = new Intent(LoginActivity.this, MainActivity.class);
+        }
+
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
         finish();
