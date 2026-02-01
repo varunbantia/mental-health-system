@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Primary -->
+    <color name="md_theme_dark_primary">#45CFC3</color>
+    <color name="md_theme_dark_onPrimary">#003733</color>
+    <color name="md_theme_dark_primaryContainer">#163F3B</color>
+    <color name="md_theme_dark_onPrimaryContainer">#CFF3EF</color>
+
+    <!-- Secondary -->
+    <color name="md_theme_dark_secondary">#5FE0D4</color>
+    <color name="md_theme_dark_onSecondary">#003733</color>
+    <color name="md_theme_dark_secondaryContainer">#1F4F4A</color>
+    <color name="md_theme_dark_onSecondaryContainer">#CFF3EF</color>
+
+    <!-- Tertiary -->
+    <color name="md_theme_dark_tertiary">#7AE8DE</color>
+    <color name="md_theme_dark_onTertiary">#003733</color>
+    <color name="md_theme_dark_tertiaryContainer">#0F2F2C</color>
+    <color name="md_theme_dark_onTertiaryContainer">#CFF3EF</color>
+
+    <!-- Background & Surface -->
+    <color name="md_theme_dark_background">#0F2F2C</color>
+    <color name="md_theme_dark_onBackground">#CFF3EF</color>
+    <color name="md_theme_dark_surface">#163F3B</color>
+    <color name="md_theme_dark_onSurface">#CFF3EF</color>
+
+    <!-- Outline -->
+    <color name="md_theme_dark_outline">#7FBDB6</color>
+
+</resources>

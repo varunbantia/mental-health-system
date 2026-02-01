@@ -1,0 +1,8 @@
+# Firebase configuration file
+google-services.json
+
+# Local configuration
+local.properties
+.gradle
+.idea
+build/
