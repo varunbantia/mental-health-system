@@ -61,4 +61,5 @@ dependencies {
     implementation("com.google.android.libraries.identity.googleid:googleid:1.1.1")
     // Google Play Services Auth - Updated to 21.2.0 to fix your build error
     implementation("com.google.android.gms:play-services-auth:21.2.0")
+    implementation("com.airbnb.android:lottie:6.2.0")
 }

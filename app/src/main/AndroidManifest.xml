@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
+<uses-permission android:name="android.permission.VIBRATE" />
+<uses-permission android:name="android.permission.RECORD_AUDIO" />
+
 
     <application
         android:allowBackup="true"
@@ -32,10 +35,7 @@
         <activity
             android:name=".wellness.SleepActivity"
             android:exported="false" />
-        <activity
-            android:name=".wellness.LearnActivity"
-            android:exported="false"
-            android:theme="@style/Theme.ManoMitra" />
+
         <activity
             android:name=".wellness.RelaxActivity"
             android:exported="false" />
