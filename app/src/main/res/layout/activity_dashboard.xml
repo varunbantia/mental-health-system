@@ -113,17 +113,22 @@
                 app:cardElevation="0dp">
 
                 <TextView
+                    android:id="@+id/tvEmergencySupport"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:padding="12dp"
+                    android:padding="16dp"
                     android:textAlignment="center"
                     android:text="Need urgent help? Tap here for emergency support"
                     android:textColor="?attr/colorOnErrorContainer"
+                    android:background="?attr/colorErrorContainer"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackground"
                     android:textStyle="bold" />
             </com.google.android.material.card.MaterialCardView>
 
             <com.google.android.material.card.MaterialCardView
-                android:id="@+id/cardStartChat"
+
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
@@ -154,6 +159,7 @@
                         android:alpha="0.8" />
 
                     <com.google.android.material.button.MaterialButton
+                        android:id="@+id/cardStartChat"
                         android:layout_width="match_parent"
                         android:layout_height="56dp"
                         android:layout_marginTop="20dp"
@@ -187,8 +193,13 @@
                 android:textColor="?attr/colorOnSurface"
                 android:textStyle="bold" />
 
-            <include layout="@layout/card_support_booking" />
-            <include layout="@layout/card_support_community" />
+            <include
+                android:id="@+id/includeBooking"
+                layout="@layout/card_support_booking" />
+
+            <include
+                android:id="@+id/includeCommunity"
+                layout="@layout/card_support_community" />
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>

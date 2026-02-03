@@ -12,6 +12,34 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.ManoMitra">
         <activity
+            android:name=".booking.BookingActivity"
+            android:exported="false" />
+        <activity
+            android:name=".wellness.LearmActivity"
+            android:exported="false" />
+        <activity
+            android:name=".resouurces.ResourcesActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.dashboard.SettingsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".community.CommunityActivity"
+            android:exported="false" />
+        <activity
+            android:name=".wellness.WellnessHubActivity"
+            android:exported="false" />
+        <activity
+            android:name=".wellness.SleepActivity"
+            android:exported="false" />
+        <activity
+            android:name=".wellness.LearnActivity"
+            android:exported="false"
+            android:theme="@style/Theme.ManoMitra" />
+        <activity
+            android:name=".wellness.RelaxActivity"
+            android:exported="false" />
+        <activity
             android:name=".ui.selfhelp.JournalActivity"
             android:exported="false" />
         <activity
@@ -56,17 +84,15 @@
         <activity
             android:name=".ui.auth.LoginActivity"
             android:exported="true">
-        <intent-filter>
-            <action android:name="android.intent.action.MAIN" />
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
 
-            <category android:name="android.intent.category.LAUNCHER" />
-        </intent-filter>
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
         <activity
             android:name=".MainActivity"
-            android:exported="false">
-
-        </activity>
+            android:exported="false" />
     </application>
 
 </manifest>
