@@ -62,4 +62,7 @@ dependencies {
     // Google Play Services Auth - Updated to 21.2.0 to fix your build error
     implementation("com.google.android.gms:play-services-auth:21.2.0")
     implementation("com.airbnb.android:lottie:6.2.0")
+    implementation("androidx.gridlayout:gridlayout:1.0.0")
+    implementation("androidx.recyclerview:recyclerview:1.3.2")
+    implementation("com.github.yuyakaido:cardstackview:2.3.4")
 }

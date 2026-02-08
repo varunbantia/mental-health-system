@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
-<uses-permission android:name="android.permission.VIBRATE" />
-<uses-permission android:name="android.permission.RECORD_AUDIO" />
 
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
 
     <application
         android:allowBackup="true"
@@ -14,6 +14,33 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.ManoMitra">
+        <activity
+            android:name=".selftips.SavedTipsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".selftips.SelfCareActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.selfhelp.OceanActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.selfhelp.NatureActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.selfhelp.MusicActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.selfhelp.AffirmationsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.selfhelp.MorningActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.selfhelp.FocusActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.selfhelp.ExamStressActivity"
+            android:exported="false" />
         <activity
             android:name=".booking.BookingActivity"
             android:exported="false" />
@@ -35,7 +62,6 @@
         <activity
             android:name=".wellness.SleepActivity"
             android:exported="false" />
-
         <activity
             android:name=".wellness.RelaxActivity"
             android:exported="false" />
