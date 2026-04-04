@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FFFFFF"
+    android:background="?android:attr/colorBackground"
     android:orientation="vertical">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -18,7 +18,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Wellness Resources"
-            android:textColor="#1A1A1A"
+            android:textColor="?attr/colorOnSurface"
             android:textSize="18sp"
             android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -29,7 +29,7 @@
             android:id="@+id/langSelectorContainer"
             android:layout_width="wrap_content"
             android:layout_height="40dp"
-            app:cardBackgroundColor="#F1F3F4"
+            app:cardBackgroundColor="?attr/colorSurface"
             app:cardCornerRadius="20dp"
             app:cardElevation="0dp"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -50,7 +50,7 @@
                 android:inputType="none"
                 android:paddingHorizontal="12dp"
                 android:text="English"
-                android:textColor="#202124"
+                android:textColor="?attr/colorOnSurface"
                 android:textSize="14sp" />
         </com.google.android.material.card.MaterialCardView>
     </androidx.constraintlayout.widget.ConstraintLayout>
@@ -84,7 +84,7 @@
                         android:layout_height="wrap_content"
                         android:letterSpacing="0.08"
                         android:text="RESOURCE OF THE DAY"
-                        android:textColor="#5F6E62"
+                        android:textColor="?attr/colorOutline"
                         android:textSize="11sp"
                         android:textStyle="bold"
                         app:layout_constraintStart_toStartOf="parent"
@@ -95,7 +95,7 @@
                         android:layout_width="48dp"
                         android:layout_height="48dp"
                         android:layout_marginTop="16dp"
-                        app:cardBackgroundColor="#FFFFFF"
+                        app:cardBackgroundColor="?attr/colorSurface"
                         app:cardCornerRadius="14dp"
                         app:cardElevation="0dp"
                         app:layout_constraintStart_toStartOf="parent"
@@ -116,7 +116,7 @@
                         android:layout_marginTop="16dp"
                         android:lineSpacingExtra="2dp"
                         android:text="5-Minute Calm\nBreathing"
-                        android:textColor="#1A1A1A"
+                        android:textColor="?attr/colorOnSurface"
                         android:textSize="24sp"
                         android:textStyle="bold"
                         app:layout_constraintTop_toBottomOf="@id/iconBox" />
@@ -127,7 +127,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="6dp"
                         android:text="Guided relaxation for stress relief"
-                        android:textColor="#5F6E62"
+                        android:textColor="?attr/colorOutline"
                         android:textSize="14sp"
                         app:layout_constraintTop_toBottomOf="@id/tvTitle" />
 
@@ -155,7 +155,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="28dp"
                 android:text="For You Today"
-                android:textColor="#1A1A1A"
+                android:textColor="?attr/colorOnSurface"
                 android:textSize="18sp"
                 android:textStyle="bold"
                 app:layout_constraintStart_toStartOf="parent"
@@ -198,7 +198,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="12dp"
                             android:text="Deep Breathing\nExercise"
-                            android:textColor="#1A1A1A"
+                            android:textColor="?attr/colorOnSurface"
                             android:textSize="14sp"
                             android:textStyle="bold" />
                     </LinearLayout>
@@ -233,7 +233,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="12dp"
                             android:text="Managing Exam\nStress"
-                            android:textColor="#1A1A1A"
+                            android:textColor="?attr/colorOnSurface"
                             android:textSize="14sp"
                             android:textStyle="bold" />
                     </LinearLayout>
@@ -268,7 +268,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="12dp"
                             android:text="Sleep Better\nTonight"
-                            android:textColor="#1A1A1A"
+                            android:textColor="?attr/colorOnSurface"
                             android:textSize="15sp"
                             android:textStyle="bold" />
 
@@ -277,7 +277,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
                             android:text="Simple night routine"
-                            android:textColor="#4B5563"
+                            android:textColor="?attr/colorOutline"
                             android:textSize="13sp" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
@@ -311,7 +311,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="12dp"
                             android:text="Evening Wind\nDown"
-                            android:textColor="#1A1A1A"
+                            android:textColor="?attr/colorOnSurface"
                             android:textSize="14sp"
                             android:textStyle="bold" />
                     </LinearLayout>
@@ -347,7 +347,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="12dp"
                             android:text="Self-Care Tips"
-                            android:textColor="#1A1A1A"
+                            android:textColor="?attr/colorOnSurface"
                             android:textSize="14sp"
                             android:textStyle="bold" />
                     </LinearLayout>
@@ -380,7 +380,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="12dp"
                             android:text="Mindful Morning Routine"
-                            android:textColor="#1A1A1A"
+                            android:textColor="?attr/colorOnSurface"
                             android:textSize="16sp"
                             android:textStyle="bold" />
 
@@ -389,7 +389,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
                             android:text="Start your day with intention"
-                            android:textColor="#4B5563"
+                            android:textColor="?attr/colorOutline"
                             android:textSize="13sp" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
@@ -401,7 +401,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="32dp"
                 android:text="Explore More Resources"
-                android:textColor="#1A1A1A"
+                android:textColor="?attr/colorOnSurface"
                 android:textSize="20sp"
                 android:textStyle="bold"
                 app:layout_constraintStart_toStartOf="parent"

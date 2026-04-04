@@ -198,6 +198,10 @@
                 layout="@layout/card_support_booking" />
 
             <include
+                android:id="@+id/includeMessages"
+                layout="@layout/card_support_messages" />
+
+            <include
                 android:id="@+id/includeCommunity"
                 layout="@layout/card_support_community" />
 

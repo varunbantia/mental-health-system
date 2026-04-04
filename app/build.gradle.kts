@@ -5,11 +5,11 @@ plugins {
 
 android {
     namespace = "com.vanaksh.manomitra"
-    compileSdk {
-        version = release(36)
-    }
+    compileSdk = 36 // Corrected: version(36) -> 36
+
     buildFeatures {
         viewBinding = true
+        buildConfig = true
     }
 
     defaultConfig {
@@ -20,6 +20,9 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        ndk {
+            abiFilters.addAll(listOf("armeabi-v7a", "arm64-v8a", "x86", "x86_64"))
+        }
     }
 
     buildTypes {
@@ -34,6 +37,17 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
+    }
+
+    packaging {
+        resources {
+            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+        }
+        jniLibs {
+            useLegacyPackaging = true
+            pickFirsts.add("lib/*/libtensorflowlite_jni.so")
+            pickFirsts.add("lib/*/libtensorflowlite_flex_jni.so")
+        }
     }
 }
 
@@ -57,6 +71,7 @@ dependencies {
     implementation("com.google.firebase:firebase-auth")
     // If you need Firestore for the phone-to-email lookup we discussed:
     implementation("com.google.firebase:firebase-firestore")
+    implementation("com.google.firebase:firebase-messaging")
     implementation("androidx.credentials:credentials:1.3.0")
     implementation("androidx.credentials:credentials-play-services-auth:1.3.0")
     implementation("com.google.android.libraries.identity.googleid:googleid:1.1.1")
@@ -66,4 +81,17 @@ dependencies {
     implementation("androidx.gridlayout:gridlayout:1.0.0")
     implementation("androidx.recyclerview:recyclerview:1.3.2")
     implementation("com.github.yuyakaido:cardstackview:2.3.4")
+
+    // ============================================
+    // Safety Layer - LiteRT (formerly TensorFlow Lite)
+    // ============================================
+    implementation("com.google.ai.edge.litert:litert:1.0.1")
+    implementation("com.google.ai.edge.litert:litert-support:1.0.1")
+    implementation("org.tensorflow:tensorflow-lite-select-tf-ops:2.16.1")
+
+    // OkHttp for ChatGPT API calls
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+
+    // MPAndroidChart for analytics dashboard
+    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
 }

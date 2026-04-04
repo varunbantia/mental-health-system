@@ -1,10 +1,170 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#F3E5F5"
     tools:context=".ui.selfhelp.ExamStressActivity">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <!-- Header (No Back Button) -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:paddingTop="48dp"
+        android:paddingBottom="16dp"
+        android:paddingHorizontal="16dp"
+        android:background="#7E57C2">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Exam Stress Relief"
+            android:textColor="#FFFFFF"
+            android:textSize="24sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:paddingBottom="24dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="16dp"
+            android:paddingTop="16dp">
+
+            <!-- Random Mantra Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="4dp"
+                app:cardBackgroundColor="#FFFFFF"
+                android:layout_marginBottom="24dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="24dp"
+                    android:gravity="center">
+
+                    <ImageView
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:src="@android:drawable/btn_star_big_on"
+                        app:tint="#7E57C2"
+                        android:layout_marginBottom="16dp" />
+
+                    <TextView
+                        android:id="@+id/tv_mantra"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Focus on progress, not perfection."
+                        android:textColor="#4A148C"
+                        android:textSize="20sp"
+                        android:textStyle="italic|bold"
+                        android:textAlignment="center"
+                        android:lineSpacingExtra="4dp" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Feeling Overwhelmed? Try the 5-4-3-2-1 Grounding Technique"
+                android:textColor="#4A148C"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="12dp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="This method helps pull your mind away from anxious thoughts and back into the present moment."
+                android:textColor="#7B1FA2"
+                android:textSize="14sp"
+                android:layout_marginBottom="16dp" />
+
+            <!-- Grounding Checklist -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="16dp"
+                app:cardBackgroundColor="#FFFFFF"
+                android:layout_marginBottom="24dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <CheckBox
+                        android:id="@+id/cb_5_see"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Name 5 things you can SEE"
+                        android:textColor="#4A148C"
+                        app:buttonTint="#7E57C2"
+                        android:padding="8dp" />
+
+                    <CheckBox
+                        android:id="@+id/cb_4_touch"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Name 4 things you can TOUCH"
+                        android:textColor="#4A148C"
+                        app:buttonTint="#7E57C2"
+                        android:padding="8dp" />
+
+                    <CheckBox
+                        android:id="@+id/cb_3_hear"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Name 3 things you can HEAR"
+                        android:textColor="#4A148C"
+                        app:buttonTint="#7E57C2"
+                        android:padding="8dp" />
+
+                    <CheckBox
+                        android:id="@+id/cb_2_smell"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Name 2 things you can SMELL"
+                        android:textColor="#4A148C"
+                        app:buttonTint="#7E57C2"
+                        android:padding="8dp" />
+
+                    <CheckBox
+                        android:id="@+id/cb_1_taste"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Name 1 thing you can TASTE"
+                        android:textColor="#4A148C"
+                        app:buttonTint="#7E57C2"
+                        android:padding="8dp" />
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_new_mantra"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:text="Get a New Mantra"
+                app:cornerRadius="28dp"
+                app:backgroundTint="#7E57C2" />
+
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

@@ -18,6 +18,7 @@ import androidx.credentials.exceptions.GetCredentialException;
 
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption;
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential;
+import com.google.android.material.chip.ChipGroup;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -26,6 +27,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.vanaksh.manomitra.MainActivity;
 import com.vanaksh.manomitra.R;
 import com.vanaksh.manomitra.databinding.ActivitySignupBinding;
+import com.vanaksh.manomitra.utils.RoleManager;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -38,9 +40,12 @@ public class SignupActivity extends AppCompatActivity {
     private FirebaseFirestore db;
     private CredentialManager credentialManager;
 
+    // --- ROLE SELECTION ---
+    private String selectedRole = null;
+    private ChipGroup chipGroupRole;
+
     // Password requirements: 1 Upper, 1 Lower, 1 Special, 1 Digit, min 6 chars
-    private static final String PASSWORD_PATTERN =
-            "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=!])(?=\\S+$).{6,}$";
+    private static final String PASSWORD_PATTERN = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=!])(?=\\S+$).{6,}$";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,6 +57,9 @@ public class SignupActivity extends AppCompatActivity {
         db = FirebaseFirestore.getInstance();
         credentialManager = CredentialManager.create(this);
 
+        // --- Setup Role Selection ---
+        setupRoleSelection();
+
         setupTextWatchers();
 
         binding.btnSignup.setOnClickListener(v -> validateAndCreateAccount());
@@ -59,7 +67,61 @@ public class SignupActivity extends AppCompatActivity {
         binding.tvLoginRedirect.setOnClickListener(v -> finish());
     }
 
+    // ==========================================
+    // ROLE SELECTION SETUP
+    // ==========================================
+
+    private void setupRoleSelection() {
+        chipGroupRole = binding.getRoot().findViewById(R.id.chipGroupRole);
+
+        // Disable action buttons until role is selected
+        binding.btnSignup.setEnabled(false);
+        binding.btnSignup.setAlpha(0.6f);
+        binding.btnGoogleSignup.setEnabled(false);
+        binding.btnGoogleSignup.setAlpha(0.6f);
+
+        chipGroupRole.setOnCheckedStateChangeListener((group, checkedIds) -> {
+            if (checkedIds.isEmpty()) {
+                selectedRole = null;
+                binding.btnSignup.setEnabled(false);
+                binding.btnSignup.setAlpha(0.6f);
+                binding.btnGoogleSignup.setEnabled(false);
+                binding.btnGoogleSignup.setAlpha(0.6f);
+            } else {
+                int checkedId = checkedIds.get(0);
+                selectedRole = mapChipIdToRole(checkedId);
+                binding.btnSignup.setEnabled(true);
+                binding.btnSignup.setAlpha(1.0f);
+                binding.btnGoogleSignup.setEnabled(true);
+                binding.btnGoogleSignup.setAlpha(1.0f);
+            }
+        });
+    }
+
+    private String mapChipIdToRole(int chipId) {
+        if (chipId == R.id.chipStudent)
+            return RoleManager.ROLE_USER;
+        if (chipId == R.id.chipVolunteer)
+            return RoleManager.ROLE_VOLUNTEER;
+        if (chipId == R.id.chipCounsellor)
+            return RoleManager.ROLE_COUNSELLOR;
+        if (chipId == R.id.chipModerator)
+            return RoleManager.ROLE_MODERATOR;
+        if (chipId == R.id.chipAdmin)
+            return RoleManager.ROLE_ADMIN;
+        return RoleManager.ROLE_USER;
+    }
+
+    // ==========================================
+    // VALIDATION & REGISTRATION (existing logic preserved)
+    // ==========================================
+
     private void validateAndCreateAccount() {
+        if (selectedRole == null) {
+            Toast.makeText(this, R.string.role_required_message, Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         String email = binding.etEmail.getText().toString().trim();
         String phone = binding.etPhone.getText().toString().trim();
         String password = binding.etPassword.getText().toString().trim();
@@ -94,7 +156,6 @@ public class SignupActivity extends AppCompatActivity {
     }
 
     private void checkDuplicatePhoneAndRegister(String email, String phone, String password) {
-        // Ensure we are searching for the trimmed, clean string
         String cleanPhone = phone.trim();
 
         db.collection("users")
@@ -103,12 +164,10 @@ public class SignupActivity extends AppCompatActivity {
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         if (task.getResult() != null && !task.getResult().isEmpty()) {
-                            // Match found! Stop registration
                             Log.d("AUTH_CHECK", "Duplicate found for: " + cleanPhone);
                             binding.tilPhone.setError("This phone number is already registered");
                             Toast.makeText(this, "Phone number already in use", Toast.LENGTH_SHORT).show();
                         } else {
-                            // No match found, proceed
                             Log.d("AUTH_CHECK", "No duplicate found. Proceeding...");
                             registerUser(email, cleanPhone, password);
                         }
@@ -123,15 +182,24 @@ public class SignupActivity extends AppCompatActivity {
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, task -> {
                     if (task.isSuccessful()) {
-                        // Manual Signup: pass false for isGoogleUser
                         saveUserToFirestore(email, phone, false);
                     } else {
-                        Toast.makeText(this, "Auth Failed: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
+                        Toast.makeText(this, "Auth Failed: " + task.getException().getMessage(), Toast.LENGTH_LONG)
+                                .show();
                     }
                 });
     }
 
+    // ==========================================
+    // GOOGLE SIGN-IN (existing logic preserved)
+    // ==========================================
+
     private void launchGoogleSignIn() {
+        if (selectedRole == null) {
+            Toast.makeText(this, R.string.role_required_message, Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         GetGoogleIdOption googleIdOption = new GetGoogleIdOption.Builder()
                 .setFilterByAuthorizedAccounts(false)
                 .setServerClientId(getString(R.string.default_web_client_id))
@@ -150,7 +218,8 @@ public class SignupActivity extends AppCompatActivity {
 
                     @Override
                     public void onError(GetCredentialException e) {
-                        runOnUiThread(() -> Toast.makeText(SignupActivity.this, "Cancelled", Toast.LENGTH_SHORT).show());
+                        runOnUiThread(
+                                () -> Toast.makeText(SignupActivity.this, "Cancelled", Toast.LENGTH_SHORT).show());
                     }
                 });
     }
@@ -177,13 +246,21 @@ public class SignupActivity extends AppCompatActivity {
         db.collection("users").document(user.getUid()).get()
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {
+                        // Existing user — cache stored role and navigate
+                        String storedRole = documentSnapshot.getString("role");
+                        if (storedRole == null || storedRole.isEmpty())
+                            storedRole = RoleManager.ROLE_USER;
+                        RoleManager.saveRole(this, storedRole);
                         navigateToHome();
                     } else {
-                        // Google Signup: pass true for isGoogleUser
                         saveUserToFirestore(user.getEmail(), "", true);
                     }
                 });
     }
+
+    // ==========================================
+    // SAVE USER — now includes role + isActive
+    // ==========================================
 
     private void saveUserToFirestore(String email, String phone, boolean isGoogleUser) {
         String uid = mAuth.getCurrentUser().getUid();
@@ -191,21 +268,26 @@ public class SignupActivity extends AppCompatActivity {
         userMap.put("email", email);
         userMap.put("phoneNumber", phone);
         userMap.put("uid", uid);
+        userMap.put("role", selectedRole); // NEW: Store selected role
+        userMap.put("isActive", true); // NEW: Account active by default
         userMap.put("createdAt", com.google.firebase.Timestamp.now());
 
         db.collection("users").document(uid).set(userMap)
                 .addOnSuccessListener(aVoid -> {
                     if (isGoogleUser) {
+                        RoleManager.saveRole(this, selectedRole);
                         navigateToHome();
                     } else {
-                        // Manual user: Sign out and return to LoginActivity
+                        // Email signup: don't cache — user will login again
                         mAuth.signOut();
                         Toast.makeText(this, "Signup successful! Please login.", Toast.LENGTH_LONG).show();
                         finish();
                     }
                 })
-                .addOnFailureListener(e -> Toast.makeText(this, "Database error", Toast.LENGTH_SHORT).show());
-    }
+                .addOnFailureListener(e -> {
+                    Log.e("DATABASE_DEBUG", "Error: " + e.getMessage()); // This will show in Logcat
+                    Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                });    }
 
     private void navigateToHome() {
         Intent intent = new Intent(this, MainActivity.class);
@@ -216,14 +298,21 @@ public class SignupActivity extends AppCompatActivity {
 
     private void setupTextWatchers() {
         TextWatcher watcher = new TextWatcher() {
-            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
                 binding.tilEmail.setError(null);
                 binding.tilPhone.setError(null);
                 binding.tilPassword.setError(null);
                 binding.tilConfirmPassword.setError(null);
             }
-            @Override public void afterTextChanged(Editable s) {}
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
         };
         binding.etEmail.addTextChangedListener(watcher);
         binding.etPhone.addTextChangedListener(watcher);

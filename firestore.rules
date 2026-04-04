@@ -1,0 +1,149 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ──────────────────────────────────────────────
+    // 🛠️ HELPERS
+    // ──────────────────────────────────────────────
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return request.auth != null && request.auth.uid == userId;
+    }
+
+    // Checks if the user has a counsellor profile
+    function isCounsellor() {
+      return isSignedIn() && 
+        exists(/databases/$(database)/documents/counsellors/$(request.auth.uid));
+    }
+
+    // Checks for 'trusted' field (isTrusted serializes to trusted)
+    function isTrustedCounsellor() {
+      return isSignedIn() && 
+        exists(/databases/$(database)/documents/counsellors/$(request.auth.uid)) &&
+        (get(/databases/$(database)/documents/counsellors/$(request.auth.uid)).data.trusted == true ||
+         get(/databases/$(database)/documents/counsellors/$(request.auth.uid)).data.isTrusted == true);
+    }
+
+    function isAdmin() {
+      return isSignedIn() && 
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // ──────────────────────────────────────────────
+    // 👤 USER PROFILES & CHATBOT HISTORY
+    // ──────────────────────────────────────────────
+    match /users/{userId} {
+      allow read: if isSignedIn() && (isOwner(userId) || isAdmin());
+      allow update: if isSignedIn() && (isOwner(userId) || isAdmin());
+      allow create: if isSignedIn();
+
+      // Chatbot History
+      match /chats/{chatId} {
+        allow read, write: if isOwner(userId) || isAdmin();
+        match /messages/{messageId} {
+          allow read, write: if isOwner(userId) || isAdmin();
+        }
+      }
+    }
+
+    // ──────────────────────────────────────────────
+    // 🏥 COUNSELLOR PROFILES
+    // ──────────────────────────────────────────────
+    match /counsellors/{counsellorId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && 
+                    request.resource.data.trusted == false &&
+                    request.resource.data.isTrusted == false;
+      
+      allow update: if isSignedIn() && (
+        (isOwner(counsellorId) && 
+         request.resource.data.trusted == resource.data.trusted &&
+         request.resource.data.isTrusted == resource.data.isTrusted) ||
+        isAdmin()
+      );
+      allow delete: if isAdmin();
+    }
+
+    // ──────────────────────────────────────────────
+    // 📅 BOOKINGS
+    // ──────────────────────────────────────────────
+    match /bookings/{bookingId} {
+      // Students can create bookings
+      allow create: if isSignedIn();
+      
+      // Participants and Admins can read
+      allow read: if isSignedIn() && (
+        request.auth.uid == resource.data.counsellorId || 
+        request.auth.uid == resource.data.studentId || 
+        request.auth.uid == resource.data.userRef ||
+        isAdmin()
+      );
+
+      // Only Trusted Counsellors or Admins can update status/crisis
+      // Note: Students can cancel (set status to cancelled)
+      allow update: if isSignedIn() && (
+        (request.auth.uid == resource.data.counsellorId && isTrustedCounsellor()) ||
+        (request.auth.uid == resource.data.studentId && request.resource.data.status == 'cancelled') ||
+        isAdmin()
+      );
+    }
+
+    // ──────────────────────────────────────────────
+    // 🚨 CRISIS CASES (Secondary collection support)
+    // ──────────────────────────────────────────────
+    match /crisis_cases/{caseId} {
+      allow read, update: if isSignedIn() && (
+        request.auth.uid == resource.data.counsellorId || 
+        isAdmin()
+      );
+      allow create: if isSignedIn();
+    }
+
+    // ──────────────────────────────────────────────
+    // 💬 1-on-1 MESSAGES
+    // ──────────────────────────────────────────────
+    match /messages/{chatId} {
+      allow read, update: if isSignedIn() && (
+        request.auth.uid in resource.data.participants || 
+        isAdmin()
+      );
+      allow create: if isSignedIn() && request.auth.uid in request.resource.data.participants;
+
+      match /history/{messageId} {
+        allow read, write: if isSignedIn() && (
+          request.auth.uid in get(/databases/$(database)/documents/messages/$(chatId)).data.participants ||
+          isAdmin()
+        );
+      }
+    }
+
+    // Collection group rule for unread message counts
+    match /{path=**}/history/{messageId} {
+      allow read: if isSignedIn() && (
+        resource.data.receiverId == request.auth.uid || 
+        resource.data.senderId == request.auth.uid ||
+        isAdmin()
+      );
+    }
+
+    // ──────────────────────────────────────────────
+    // 📊 ANALYTICS SUMMARY (Admin read-only)
+    // ──────────────────────────────────────────────
+    match /analytics_summary/{dateDoc} {
+      allow read: if isAdmin();
+      allow write: if false; // Only writable by Cloud Functions
+    }
+
+    // ──────────────────────────────────────────────
+    // 🚫 DEFAULT DENY
+    // ──────────────────────────────────────────────
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/nav_pending_posts"
+        android:icon="@drawable/ic_list"
+        android:title="Pending" />
+    <item
+        android:id="@+id/nav_reports"
+        android:icon="@drawable/ic_warning"
+        android:title="Reports" />
+    <item
+        android:id="@+id/nav_escalated_cases"
+        android:icon="@drawable/ic_warning"
+        android:title="Escalated" />
+    <item
+        android:id="@+id/nav_profile"
+        android:icon="@drawable/ic_person"
+        android:title="Profile" />
+</menu>

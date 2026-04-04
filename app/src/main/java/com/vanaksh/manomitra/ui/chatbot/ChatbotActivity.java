@@ -63,10 +63,12 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.SetOptions;
 import com.vanaksh.manomitra.R;
 import com.vanaksh.manomitra.data.model.ChatMessage;
+import com.vanaksh.manomitra.safety.ChatController;
 import com.vanaksh.manomitra.wellness.LearmActivity;
 
 // --- Network Imports ---
@@ -79,62 +81,65 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import com.vanaksh.manomitra.ui.chatbot.ChatAdapter.OnPlayButtonClickListener;
 import java.util.concurrent.TimeUnit;
 
+public class ChatbotActivity extends AppCompatActivity
+        implements OnPlayButtonClickListener, TextToSpeech.OnInitListener {
 
-
-
-public class ChatbotActivity extends AppCompatActivity implements
-        ChatAdapter.OnPlayButtonClickListener {
     private static final String TAG = "ChatbotActivity";
+    private static final int MIC_PERMISSION_REQUEST_CODE = 100;
+    private static final int NOTIFICATION_PERMISSION_CODE = 101; // Added based on usage
 
-    private ActivityResultLauncher<Intent> chatHistoryLauncher;
-    // --- 🌎 Constants ---
-    private static final int MIC_PERMISSION_REQUEST_CODE = 200;
-    private static final int NOTIFICATION_PERMISSION_CODE = 101;
-    private static final String PREF_KEY_PROFILE_PROMPT_SHOWN = "first_message_profile_prompt_shown";
-
-    // --- 🎨 Views ---
+    // --- 📱 UI Components ---
     private RecyclerView recyclerView;
     private EditText etMessage;
-    private ImageButton btnSend, btnMic, btnMenu;
-    private TextView tvWelcome;
-    private LinearLayout textInputLayout, voiceRecordingLayout, reviewVoiceLayout;
-    private TextView tvRecordingTime, tvSlideToCancel, tvVoiceDuration;
+    private ImageButton btnSend, btnMic;
+    private TextView tvWelcome, tvRecordingTime, tvSlideToCancel, tvVoiceDuration;
+    private View textInputLayout, reviewVoiceLayout;
+    private ViewGroup voiceRecordingLayout; // Fixed: Changed from View to ViewGroup
+
+    private ImageView ivRecordingDot, ivLock, ivLockArrow;
+    private View lockViewContainer;
     private ImageButton btnDeleteVoice, btnPlayPause, btnSendVoice, btnStopRecording;
-    private ImageView ivRecordingDot ,ivLock, ivLockArrow;
     private SeekBar voiceSeekBar;
     private FrameLayout fragmentContainer;
-    private ViewGroup inputArea;
-    private ViewGroup lockViewContainer;
+    private FrameLayout inputArea; // Fixed type to match XML (FrameLayout)
 
-    // --- ✨ Animation ---
-    private Animation pulseAnimation;
-    private Animation bounceAnimation;
-    private Animation slideToCancelAnimation;
+    // --- 🎬 Animations ---
+    private Animation pulseAnimation, bounceAnimation, slideToCancelAnimation;
 
-    // --- 🧠 Data & Logic ---
-    private List<ChatMessage> chatMessages;
+    // --- 🧩 Adapters & Controllers ---
     private ChatAdapter chatAdapter;
-    private TextToSpeech tts;
+    private List<ChatMessage> chatMessages;
+    private ChatController chatController;
+    private ActivityResultLauncher<Intent> chatHistoryLauncher;
+
+    // --- 🔥 Firebase ---
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
+    private ListenerRegistration chatListener;
 
-    private final Handler timerHandler = new Handler(Looper.getMainLooper());
-
-    // --- 🎤 Audio Recording & Playback ---
-    private MediaRecorder recorder;
+    // --- 🔊 Media & TTS ---
+    private TextToSpeech tts;
     private MediaPlayer reviewPlayer;
-    private File audioFile;
-    private long startTime = 0;
-
-    // --- 🎧 Chat Playback ---
     private MediaPlayer chatPlayer;
-    private ImageButton currentlyPlayingButton = null;
-    private SeekBar currentlyPlayingSeekBar = null;
-    private String currentlyPlayingFilePath = null;
-    private final Handler chatSeekBarHandler = new Handler(Looper.getMainLooper());
 
+    // --- 🎤 Recorder & Playback State ---
+    private static final String OPENAI_API_KEY = "YOUR_OPENAI_API_KEY"; // TODO: Replace with actual key or use BuildConfig
+    // BuildConfig
+    private File audioFile;
+    private MediaRecorder recorder;
+    private ImageButton currentlyPlayingButton;
+    private SeekBar currentlyPlayingSeekBar;
+    private String currentlyPlayingFilePath;
+
+    // --- ⏰ Handlers ---
+    private Handler timerHandler = new Handler(Looper.getMainLooper());
+    private Handler chatSeekBarHandler = new Handler(Looper.getMainLooper());
+    private long startTime = 0L;
+
+    // START: Fields
     // --- ⚙️ State Management ---
     private boolean isActive = false;
     private boolean isRecording = false;
@@ -149,7 +154,6 @@ public class ChatbotActivity extends AppCompatActivity implements
     private float initialY = 0f;
     private Vibrator vibrator;
 
-
     // ---------------------------------------------------------------------------------------------
     // 1. 🚀 ACTIVITY LIFECYCLE
     // ---------------------------------------------------------------------------------------------
@@ -161,19 +165,22 @@ public class ChatbotActivity extends AppCompatActivity implements
         chatHistoryLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
-                    // This is the callback that runs when ChatHistoryActivity closes
                     if (result.getResultCode() == RESULT_OK && result.getData() != null) {
-                        ArrayList<String> deletedIds = result.getData().getStringArrayListExtra("DELETED_CHAT_IDS");
+                        // 1. Check if a specific chat was selected to be opened
+                        String selectedId = result.getData().getStringExtra("CHAT_ID");
+                        if (selectedId != null) {
+                            currentChatId = selectedId;
+                            loadChatHistory(selectedId); // This method updates your UI from Firestore
+                            return; // Stop here if we are just loading a chat
+                        }
 
+                        // 2. Existing logic for handling deleted chats
+                        ArrayList<String> deletedIds = result.getData().getStringArrayListExtra("DELETED_CHAT_IDS");
                         if (deletedIds != null && currentChatId != null && deletedIds.contains(currentChatId)) {
-                            // The chat we are currently viewing was deleted!
-                            // We must reset the activity.
-                            Log.d(TAG, "Current chat was deleted. Clearing state.");
                             clearChatState();
                         }
                     }
-                }
-        );
+                });
         // Run all setup methods
         initializeViews();
         setupKeyboardScrollListener();
@@ -183,6 +190,8 @@ public class ChatbotActivity extends AppCompatActivity implements
 
         setupInputListeners();
 
+        // Initialize Safety Layer with ChatGPT
+        chatController = new ChatController(this, OPENAI_API_KEY);
 
     }
 
@@ -202,7 +211,7 @@ public class ChatbotActivity extends AppCompatActivity implements
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         setIntent(intent); // Update the activity's intent
-         // Handle the prompt
+        // Handle the prompt
     }
 
     @Override
@@ -223,28 +232,6 @@ public class ChatbotActivity extends AppCompatActivity implements
         } else {
             super.onBackPressed();
         }
-    }
-
-    @Override
-    protected void onDestroy() {
-        if (tts != null) {
-            tts.stop();
-            tts.shutdown();
-        }
-        if (reviewPlayer != null) {
-            reviewPlayer.release();
-            reviewPlayer = null;
-        }
-        if (chatPlayer != null) {
-            chatPlayer.release();
-            chatPlayer = null;
-        }
-        // Cancel any lingering network requests
-
-        // Stop all handlers
-        timerHandler.removeCallbacksAndMessages(null);
-        chatSeekBarHandler.removeCallbacksAndMessages(null);
-        super.onDestroy();
     }
 
     // ---------------------------------------------------------------------------------------------
@@ -286,7 +273,8 @@ public class ChatbotActivity extends AppCompatActivity implements
 
         // Get Vibrator service
         vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-
+        ImageButton btnChatMenu = findViewById(R.id.btnChatMenu);
+        btnChatMenu.setOnClickListener(v -> showChatMenu(v));
         // Set window preferences
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
         etMessage.requestFocus();
@@ -303,15 +291,65 @@ public class ChatbotActivity extends AppCompatActivity implements
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(chatAdapter);
     }
+
     /**
      * Resets the chat activity to a fresh, new chat.
      * Called when the current chat is deleted from ChatHistoryActivity.
      */
+
+    private void showChatMenu(View anchor) {
+        PopupMenu popupMenu = new PopupMenu(this, anchor);
+        FirebaseUser user = mAuth.getCurrentUser();
+
+        if (user == null)
+            return;
+
+        // 1. Fetch recent chats from Firestore
+        db.collection("users").document(user.getUid()).collection("chats")
+                .orderBy("timestamp", Query.Direction.DESCENDING)
+                .limit(4) // Show only latest 4
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    int i = 0;
+                    for (DocumentSnapshot doc : queryDocumentSnapshots) {
+                        String lastMsg = doc.getString("lastMessage");
+                        if (lastMsg == null)
+                            lastMsg = "New Chat";
+
+                        // Truncate message for menu
+                        if (lastMsg.length() > 25)
+                            lastMsg = lastMsg.substring(0, 22) + "...";
+
+                        popupMenu.getMenu().add(Menu.NONE, i, i, lastMsg);
+                        final String chatId = doc.getId();
+
+                        // Set action for specific chat
+                        popupMenu.getMenu().getItem(i).setOnMenuItemClickListener(item -> {
+                            loadChatHistory(chatId);
+                            currentChatId = chatId;
+                            return true;
+                        });
+                        i++;
+                    }
+
+                    // 2. Add "Show More" at the end
+                    popupMenu.getMenu().add(Menu.NONE, 99, 99, "Show More...");
+                    popupMenu.getMenu().findItem(99).setOnMenuItemClickListener(item -> {
+                        // Redirect to History Activity
+                        Intent intent = new Intent(ChatbotActivity.this, ChatHistoryActivity.class);
+                        chatHistoryLauncher.launch(intent);
+                        return true;
+                    });
+
+                    popupMenu.show();
+                });
+    }
+
     private void clearChatState() {
         // 1. Stop any Firestore listeners by detaching
-        //    (This assumes your listener is a class variable, which it should be)
-        //    If not, you'll need to refactor loadChatHistory to support detaching.
-        //    For now, we will just clear the local data.
+        // (This assumes your listener is a class variable, which it should be)
+        // If not, you'll need to refactor loadChatHistory to support detaching.
+        // For now, we will just clear the local data.
 
         // 2. Clear the local data
         currentChatId = null;
@@ -325,8 +363,10 @@ public class ChatbotActivity extends AppCompatActivity implements
         // 4. Clear the intent extra so it doesn't try to reload the old chat
         getIntent().removeExtra("CHAT_ID");
     }
+
     /**
-     * Manually detects when the keyboard opens and forces the RecyclerView to scroll to the bottom.
+     * Manually detects when the keyboard opens and forces the RecyclerView to
+     * scroll to the bottom.
      */
     private void setupKeyboardScrollListener() {
         final CoordinatorLayout rootLayout = findViewById(R.id.chatRootLayout);
@@ -341,7 +381,8 @@ public class ChatbotActivity extends AppCompatActivity implements
                 int keypadHeight = screenHeight - r.bottom;
                 boolean isOpen = keypadHeight > screenHeight * 0.15;
 
-                if (isOpen == wasOpen) return; // No change
+                if (isOpen == wasOpen)
+                    return; // No change
                 wasOpen = isOpen;
 
                 if (isOpen) {
@@ -357,9 +398,9 @@ public class ChatbotActivity extends AppCompatActivity implements
     }
 
     /**
-     * Checks the intent for extras, like loading a specific chat history or a mock interview prompt.
+     * Checks the intent for extras, like loading a specific chat history or a mock
+     * interview prompt.
      */
-
 
     private void setupFirebase() {
         mAuth = FirebaseAuth.getInstance();
@@ -376,10 +417,12 @@ public class ChatbotActivity extends AppCompatActivity implements
                     public void onStart(String utteranceId) {
                         runOnUiThread(() -> currentlySpeakingText = utteranceId);
                     }
+
                     @Override
                     public void onDone(String utteranceId) {
                         runOnUiThread(() -> currentlySpeakingText = null);
                     }
+
                     @Override
                     public void onError(String utteranceId) {
                         runOnUiThread(() -> currentlySpeakingText = null);
@@ -390,39 +433,90 @@ public class ChatbotActivity extends AppCompatActivity implements
             }
         });
     }
+
+    /**
+     * Send a user message to the bot through the safety pipeline.
+     *
+     * COMPLETE MESSAGE FLOW:
+     * [1] User types message in UI and taps Send
+     * [2] Message added to chat list and saved to Firestore
+     * [3] Message sent to ChatController → SafetyManager (keyword check)
+     * [4a] If SAFE → ChatController sends message to ChatGPT (OpenAI API)
+     * [4b] If UNSAFE → Message BLOCKED, crisis helpline response returned
+     * [5] Response (from ChatGPT or safety) displayed in chat UI
+     */
     private void sendMessageToBot(String userMessage, boolean addUiMessage) {
         if (addUiMessage) {
-            // Add User Message to list locally
+            // [STEP 1] Add user's message to the chat UI and save to Firestore
             ChatMessage userMsg = new ChatMessage(userMessage, ChatMessage.TYPE_USER_TEXT);
             chatMessages.add(0, userMsg);
             chatAdapter.notifyItemInserted(0);
             recyclerView.scrollToPosition(0);
+            saveMessage(userMsg);
         }
 
-        // 1. Show Loading Indicator
+        // [STEP 2] Show loading indicator while waiting for response
         isBotResponding = true;
         setRespondingState();
         addLoadingMessage();
 
-        // 2. Dummy Delay
-        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+        // [STEP 3] Send message to ChatController for safety check + ChatGPT processing
+        // ChatController will: check safety → if safe, send to OpenAI → return response
+        chatController.processMessageWithHistoryDetailed(userMessage, chatMessages,
+                new ChatController.DetailedChatCallback() {
+                    @Override
+                    public void onResponseWithDetails(String response,
+                            com.vanaksh.manomitra.safety.SafetyManager.SafetyResult safetyResult) {
+                        // Safety details logged (Toast removed)
+                        Log.d(TAG, "Safety result: " + (safetyResult.isSafe ? "SAFE" : "BLOCKED") +
+                                ", Score: " + safetyResult.riskScore);
+                    }
 
-            // 3. Remove Loading Indicator
-            removeLoadingMessage();
+                    @Override
+                    public void onResponse(String response, boolean wasSafe) {
+                        // [STEP 4] Response received (from ChatGPT if safe, or crisis msg if unsafe)
+                        removeLoadingMessage();
 
-            // 4. Get and Display Bot Response
-            String reply = getDummyBotReply(userMessage);
-            ChatMessage botMsg = new ChatMessage(reply, ChatMessage.TYPE_BOT);
+                        if (!wasSafe) {
+                            // Message was BLOCKED by safety - response is crisis helpline message
+                            Log.d(TAG, "Message was BLOCKED by safety layer: " + userMessage);
+                        } else {
+                            // Message was SAFE - response is from ChatGPT (OpenAI)
+                            Log.d(TAG, "ChatGPT response received for: " + userMessage);
+                        }
 
-            chatMessages.add(0, botMsg);
-            chatAdapter.notifyItemInserted(0);
-            recyclerView.scrollToPosition(0);
+                        // [STEP 5] Display bot response in chat UI
+                        ChatMessage botMsg = new ChatMessage(response, ChatMessage.TYPE_BOT);
+                        chatMessages.add(0, botMsg);
+                        chatAdapter.notifyItemInserted(0);
+                        saveMessage(botMsg);
+                        recyclerView.scrollToPosition(0);
 
-            // 5. Reset UI State
-            isBotResponding = false;
-            setIdleState();
+                        // Reset UI State
+                        isBotResponding = false;
+                        setIdleState();
+                    }
 
-        }, 1200); // 1.2 second delay for realism
+                    @Override
+                    public void onError(String error) {
+                        // [ERROR] ChatGPT API or processing error
+                        removeLoadingMessage();
+
+                        String errorResponse = "I'm having trouble connecting right now. " +
+                                "Please check your internet connection and try again.";
+                        ChatMessage botMsg = new ChatMessage(errorResponse, ChatMessage.TYPE_BOT);
+                        chatMessages.add(0, botMsg);
+                        chatAdapter.notifyItemInserted(0);
+                        recyclerView.scrollToPosition(0);
+
+                        Log.e(TAG, "ChatController error: " + error);
+                        Toast.makeText(ChatbotActivity.this, "Error: " + error, Toast.LENGTH_SHORT).show();
+
+                        // Reset UI State
+                        isBotResponding = false;
+                        setIdleState();
+                    }
+                });
     }
 
     private void sendAudioToBackend(File file) {
@@ -431,27 +525,58 @@ public class ChatbotActivity extends AppCompatActivity implements
         setRespondingState();
         addLoadingMessage();
 
-        new Handler(Looper.getMainLooper()).postDelayed(() -> {
-            // 2. Remove the loading dots
-            removeLoadingMessage();
+        // 2. Process voice message through transcription + safety + ChatGPT
+        chatController.processVoiceMessage(file, new ChatController.VoiceChatCallback() {
+            @Override
+            public void onTranscription(String transcribedText) {
+                // Show the transcribed text as a user message
+                Log.d(TAG, "Voice transcribed: " + transcribedText);
 
-            // 3. Create the dummy transcription message
-            String fakeTranscription = "This is a dummy transcription of your voice.";
-            ChatMessage transcriptionMsg = new ChatMessage(fakeTranscription, ChatMessage.TYPE_BOT);
+                // UI update removed as user request - hiding transcription
+                // ChatMessage userMsg = new ChatMessage("🎤 " + transcribedText,
+                // ChatMessage.TYPE_USER_TEXT);
+                // chatMessages.add(0, userMsg);
+                // chatAdapter.notifyItemInserted(0);
+                // recyclerView.scrollToPosition(0);
+            }
 
-            // 4. Update the UI list locally
-            chatMessages.add(0, transcriptionMsg);
-            chatAdapter.notifyItemInserted(0);
+            @Override
+            public void onResponse(String response, boolean wasSafe) {
+                // Remove loading and show bot response
+                removeLoadingMessage();
 
-            // 5. Reset UI to idle
-            isBotResponding = false;
-            setIdleState();
+                if (!wasSafe) {
+                    Log.d(TAG, "Voice message was flagged by safety layer");
+                }
 
-            // 6. Scroll to the new message
-            recyclerView.scrollToPosition(0);
+                ChatMessage botMsg = new ChatMessage(response, ChatMessage.TYPE_BOT);
+                chatMessages.add(0, botMsg);
+                chatAdapter.notifyItemInserted(0);
+                recyclerView.scrollToPosition(0);
 
-        }, 2000); // 2-second delay to simulate processing
+                isBotResponding = false;
+                setIdleState();
+            }
+
+            @Override
+            public void onError(String error) {
+                removeLoadingMessage();
+
+                String errorResponse = "I couldn't process your voice message. " +
+                        "Please try again or type your message.";
+                ChatMessage botMsg = new ChatMessage(errorResponse, ChatMessage.TYPE_BOT);
+                chatMessages.add(0, botMsg);
+                chatAdapter.notifyItemInserted(0);
+                recyclerView.scrollToPosition(0);
+
+                Log.e(TAG, "Voice processing error: " + error);
+
+                isBotResponding = false;
+                setIdleState();
+            }
+        });
     }
+
     private String getDummyBotReply(String userMessage) {
 
         userMessage = userMessage.toLowerCase();
@@ -487,10 +612,12 @@ public class ChatbotActivity extends AppCompatActivity implements
         chatAdapter.notifyItemInserted(0); // Tell the adapter to animate the new item
         recyclerView.scrollToPosition(0);
     }
+
     private void addBotMessage(String message) {
         ChatMessage chatMessage = new ChatMessage(message, ChatMessage.TYPE_BOT);
         saveMessage(chatMessage); // Save to Firestore
     }
+
     private void addLoadingMessage() {
         if (!chatMessages.isEmpty() && chatMessages.get(0).getType() == ChatMessage.TYPE_LOADING) {
             return; // Already loading
@@ -499,14 +626,15 @@ public class ChatbotActivity extends AppCompatActivity implements
         chatAdapter.notifyItemInserted(0);
         recyclerView.scrollToPosition(0);
     }
+
     private void removeLoadingMessage() {
-        if (chatMessages.isEmpty()) return;
+        if (chatMessages.isEmpty())
+            return;
         if (chatMessages.get(0).getType() == ChatMessage.TYPE_LOADING) {
             chatMessages.remove(0);
             chatAdapter.notifyItemRemoved(0);
         }
     }
-
 
     // ---------------------------------------------------------------------------------------------
     // 4. 🎹 INPUT & BUTTONS (TEXT, SEND, STOP)
@@ -516,7 +644,9 @@ public class ChatbotActivity extends AppCompatActivity implements
         // Text watcher for send/mic button
         etMessage.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 if (!isBotResponding) {
@@ -529,8 +659,10 @@ public class ChatbotActivity extends AppCompatActivity implements
                     }
                 }
             }
+
             @Override
-            public void afterTextChanged(Editable s) {}
+            public void afterTextChanged(Editable s) {
+            }
         });
 
         // Send/Stop button click
@@ -608,7 +740,8 @@ public class ChatbotActivity extends AppCompatActivity implements
                                 // Vibrate on lock
                                 if (vibrator != null) {
                                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                                        vibrator.vibrate(VibrationEffect.createOneShot(50, VibrationEffect.DEFAULT_AMPLITUDE));
+                                        vibrator.vibrate(
+                                                VibrationEffect.createOneShot(50, VibrationEffect.DEFAULT_AMPLITUDE));
                                     } else {
                                         vibrator.vibrate(50);
                                     }
@@ -697,6 +830,7 @@ public class ChatbotActivity extends AppCompatActivity implements
             btnMic.setVisibility(View.GONE);
         }
     }
+
     private void resetInputUI() {
         // 🚀 Animate the layout change
         TransitionManager.beginDelayedTransition(inputArea);
@@ -744,11 +878,11 @@ public class ChatbotActivity extends AppCompatActivity implements
 
     private void startRecording() {
         try {
-            audioFile = File.createTempFile("voice_input", ".3gp", getCacheDir());
+            audioFile = File.createTempFile("voice_input", ".m4a", getCacheDir());
             recorder = new MediaRecorder();
             recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-            recorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
-            recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+            recorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
+            recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
             recorder.setOutputFile(audioFile.getAbsolutePath());
             recorder.prepare();
             recorder.start();
@@ -820,7 +954,8 @@ public class ChatbotActivity extends AppCompatActivity implements
     }
 
     private void stopAndSendRecording() {
-        if (!isRecording) return;
+        if (!isRecording)
+            return;
         try {
             recorder.stop();
             recorder.release();
@@ -844,12 +979,14 @@ public class ChatbotActivity extends AppCompatActivity implements
     }
 
     private void cancelRecording() {
-        if (!isRecording) return;
+        if (!isRecording)
+            return;
         try {
             recorder.stop();
             recorder.release();
             recorder = null;
-            if (audioFile != null) audioFile.delete();
+            if (audioFile != null)
+                audioFile.delete();
         } catch (Exception e) {
             Log.e(TAG, "cancelRecording failed", e);
         } finally {
@@ -858,7 +995,8 @@ public class ChatbotActivity extends AppCompatActivity implements
     }
 
     private void stopRecordingAndShowReview() {
-        if (!isRecording) return;
+        if (!isRecording)
+            return;
         try {
             recorder.stop();
             recorder.release();
@@ -897,7 +1035,8 @@ public class ChatbotActivity extends AppCompatActivity implements
             reviewPlayer.prepare();
             int duration = reviewPlayer.getDuration();
             voiceSeekBar.setMax(duration);
-            tvVoiceDuration.setText(String.format(Locale.getDefault(), "%d:%02d", (duration / 1000) / 60, (duration / 1000) % 60));
+            tvVoiceDuration.setText(
+                    String.format(Locale.getDefault(), "%d:%02d", (duration / 1000) / 60, (duration / 1000) % 60));
 
             reviewPlayer.setOnCompletionListener(mp -> {
                 btnPlayPause.setImageResource(R.drawable.ic_play_arrow);
@@ -907,10 +1046,17 @@ public class ChatbotActivity extends AppCompatActivity implements
             voiceSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                 @Override
                 public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                    if (fromUser) reviewPlayer.seekTo(progress);
+                    if (fromUser)
+                        reviewPlayer.seekTo(progress);
                 }
-                @Override public void onStartTrackingTouch(SeekBar seekBar) {}
-                @Override public void onStopTrackingTouch(SeekBar seekBar) {}
+
+                @Override
+                public void onStartTrackingTouch(SeekBar seekBar) {
+                }
+
+                @Override
+                public void onStopTrackingTouch(SeekBar seekBar) {
+                }
             });
         } catch (IOException e) {
             Log.e(TAG, "prepareMediaPlayer failed", e);
@@ -918,7 +1064,8 @@ public class ChatbotActivity extends AppCompatActivity implements
     }
 
     private void playOrPauseReview() {
-        if (reviewPlayer == null) return;
+        if (reviewPlayer == null)
+            return;
         if (reviewPlayer.isPlaying()) {
             reviewPlayer.pause();
             btnPlayPause.setImageResource(R.drawable.ic_play_arrow);
@@ -993,7 +1140,8 @@ public class ChatbotActivity extends AppCompatActivity implements
             chatPlayer.setOnCompletionListener(mp -> {
                 playButton.setImageResource(R.drawable.ic_play_arrow);
                 seekBar.setProgress(0);
-                if(chatPlayer != null) chatPlayer.release();
+                if (chatPlayer != null)
+                    chatPlayer.release();
                 chatPlayer = null;
                 currentlyPlayingFilePath = null;
             });
@@ -1043,127 +1191,188 @@ public class ChatbotActivity extends AppCompatActivity implements
 
     private void saveMessage(ChatMessage message) {
         FirebaseUser user = mAuth.getCurrentUser();
-        if (user == null) {
-            Log.e(TAG, "Cannot save message, user is not logged in.");
+        if (user == null)
             return;
-        }
         String uid = user.getUid();
 
-        // --- 💡 MODIFIED (FIX) 💡 ---
+        // --- FIX 1: Generate ID without adding a "Hello" message ---
         if (currentChatId == null) {
-            // This is a NEW chat. Create the chat ID.
             currentChatId = db.collection("users").document(uid).collection("chats").document().getId();
+            Log.d(TAG, "New Chat ID generated: " + currentChatId);
 
-            // This is the first message. We must ALSO save the "Hello!"
-            // message so it becomes part of the permanent history.
-            ChatMessage welcomeMessage = new ChatMessage("Hello! How can I assist you today?", ChatMessage.TYPE_BOT);
-
-            // Add the "Hello" message to Firestore.
-            db.collection("users").document(uid).collection("chats").document(currentChatId)
-                    .collection("messages").add(welcomeMessage);
-
-            // NOW attach the listener. It will pick up the "Hello" message.
+            // Start listening to this new ID immediately
             loadChatHistory(currentChatId);
         }
-        // --- END MODIFIED ---
 
-        // Add the message to the "messages" subcollection
+        // --- FIX 2: Save the actual message ---
         db.collection("users").document(uid).collection("chats").document(currentChatId)
-                .collection("messages").add(message);
+                .collection("messages").add(message)
+                .addOnSuccessListener(doc -> Log.d(TAG, "Message saved to Cloud"))
+                .addOnFailureListener(e -> Log.e(TAG, "Save failed: " + e.getMessage()));
 
-        // Update the "chats" document with the last message and timestamp
+        // Update session metadata
         Map<String, Object> sessionData = new HashMap<>();
         sessionData.put("lastMessage", message.getMessage());
         sessionData.put("timestamp", new Date());
+
         db.collection("users").document(uid).collection("chats").document(currentChatId)
                 .set(sessionData, SetOptions.merge());
     }
 
     private void loadChatHistory(String chatId) {
         FirebaseUser user = mAuth.getCurrentUser();
-        if (user == null) return;
-        String uid = user.getUid();
+        if (user == null)
+            return;
 
-        db.collection("users").document(uid).collection("chats").document(chatId)
+        if (chatListener != null)
+            chatListener.remove();
+
+        chatListener = db.collection("users").document(user.getUid()).collection("chats").document(chatId)
                 .collection("messages").orderBy("timestamp", Query.Direction.DESCENDING)
                 .addSnapshotListener((snapshots, error) -> {
-                    if (error != null) return;
-                    if (snapshots == null) return;
+                    if (error != null || snapshots == null)
+                        return;
 
-                    List<ChatMessage> newMessages = new ArrayList<>();
-
-                    // 1. If we are currently waiting for a bot, keep the loading state at the top
-                    if (isBotResponding) {
-                        newMessages.add(new ChatMessage(ChatMessage.TYPE_LOADING));
-                    }
-
-                    // 2. Add all messages from Firestore
+                    // Create a temporary list to hold Firestore data
+                    List<ChatMessage> firestoreMessages = new ArrayList<>();
                     for (DocumentSnapshot doc : snapshots.getDocuments()) {
                         ChatMessage msg = doc.toObject(ChatMessage.class);
-                        if (msg != null) {
-                            newMessages.add(msg);
-                        }
+                        if (msg != null)
+                            firestoreMessages.add(msg);
                     }
 
-                    // 3. Update the adapter with the full new list
-                    chatMessages.clear();
-                    chatMessages.addAll(newMessages);
-                    chatAdapter.notifyDataSetChanged();
-                    recyclerView.scrollToPosition(0);
+                    // ONLY update the UI if Firestore actually returned messages
+                    if (!firestoreMessages.isEmpty()) {
+                        chatMessages.clear();
+
+                        // Keep the loading dot visible if the bot is still thinking
+                        if (isBotResponding) {
+                            chatMessages.add(new ChatMessage(ChatMessage.TYPE_LOADING));
+                        }
+
+                        chatMessages.addAll(firestoreMessages);
+                        chatAdapter.notifyDataSetChanged();
+                        recyclerView.scrollToPosition(0);
+                    }
                 });
     }
+
+    @Override
+    protected void onDestroy() {
+        // Stop TTS
+        if (tts != null) {
+            tts.stop();
+            tts.shutdown();
+        }
+
+        // Release Media Players
+        if (reviewPlayer != null) {
+            reviewPlayer.release();
+            reviewPlayer = null;
+        }
+        if (chatPlayer != null) {
+            chatPlayer.release();
+            chatPlayer = null;
+        }
+
+        // Remove Handlers
+        if (timerHandler != null)
+            timerHandler.removeCallbacksAndMessages(null);
+        if (chatSeekBarHandler != null)
+            chatSeekBarHandler.removeCallbacksAndMessages(null);
+
+        // Remove Firestore listener
+        if (chatListener != null) {
+            chatListener.remove();
+        }
+
+        // Cleanup Safety Layer
+        if (chatController != null) {
+            chatController.close();
+            chatController = null;
+        }
+
+        super.onDestroy();
+    }
+
     private void loadUserNameAndCheckProfile() {
         FirebaseUser user = mAuth.getCurrentUser();
         if (user == null) {
             tvWelcome.setText("👋 Welcome!");
             isProfileVerifiedIncomplete = true;
-
             return;
         }
 
+        // Anonymous users don't have a name — just show "User"
+        if (user.isAnonymous()) {
+            tvWelcome.setText("👋 Welcome, User!");
+            isProfileVerifiedIncomplete = true;
+            return;
+        }
+
+        // Logged-in user — fetch name from Firestore
         db.collection("users").document(user.getUid())
                 .addSnapshotListener((documentSnapshot, e) -> {
                     if (e != null) {
                         Log.w(TAG, "Listen failed.", e);
-
                         return;
                     }
                     if (documentSnapshot != null && documentSnapshot.exists()) {
                         String name = documentSnapshot.getString("name");
-                        tvWelcome.setText("👋 Welcome, " + (name != null && !name.isEmpty() ? name : "") + "!");
+
+                        // Fallback chain: Firestore name → Firebase displayName → "User"
+                        if (name == null || name.trim().isEmpty()) {
+                            name = user.getDisplayName();
+                        }
+                        if (name == null || name.trim().isEmpty()) {
+                            name = "User";
+                        }
+
+                        tvWelcome.setText("👋 Welcome, " + name + "!");
                         String skills = documentSnapshot.getString("skills");
                         isProfileVerifiedIncomplete = (skills == null || skills.trim().isEmpty());
                     } else {
-                        tvWelcome.setText("👋 Welcome!");
+                        // No Firestore doc yet — fallback to Firebase displayName
+                        String displayName = user.getDisplayName();
+                        if (displayName != null && !displayName.trim().isEmpty()) {
+                            tvWelcome.setText("👋 Welcome, " + displayName + "!");
+                        } else {
+                            tvWelcome.setText("👋 Welcome!");
+                        }
                         isProfileVerifiedIncomplete = true;
                     }
-
                 });
     }
+
     private boolean checkPermissions() {
-        return ActivityCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED;
+        return ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED;
     }
 
     private void requestMicPermission() {
         if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.RECORD_AUDIO)) {
             new AlertDialog.Builder(this)
                     .setTitle("Permission Needed")
-                    .setMessage("To record your voice queries, RozgarAI needs access to your microphone. Please grant the permission.")
+                    .setMessage(
+                            "To record your voice queries, RozgarAI needs access to your microphone. Please grant the permission.")
                     .setPositiveButton("OK", (dialog, which) -> {
-                        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.RECORD_AUDIO}, MIC_PERMISSION_REQUEST_CODE);
+                        ActivityCompat.requestPermissions(this, new String[] { Manifest.permission.RECORD_AUDIO },
+                                MIC_PERMISSION_REQUEST_CODE);
                     })
                     .setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss())
                     .create()
                     .show();
         } else {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.RECORD_AUDIO}, MIC_PERMISSION_REQUEST_CODE);
+            ActivityCompat.requestPermissions(this, new String[] { Manifest.permission.RECORD_AUDIO },
+                    MIC_PERMISSION_REQUEST_CODE);
         }
     }
 
     private void showSettingsRedirectDialog() {
         new AlertDialog.Builder(this)
                 .setTitle("Permission Permanently Denied")
-                .setMessage("You have permanently denied microphone permission. To use the voice feature, you must enable it in your device's settings.")
+                .setMessage(
+                        "You have permanently denied microphone permission. To use the voice feature, you must enable it in your device's settings.")
                 .setPositiveButton("Go to Settings", (dialog, which) -> {
                     Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
                     Uri uri = Uri.fromParts("package", getPackageName(), null);
@@ -1175,7 +1384,8 @@ public class ChatbotActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+            @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults); // !! Don't forget super !!
 
         if (requestCode == MIC_PERMISSION_REQUEST_CODE) {
@@ -1223,4 +1433,16 @@ public class ChatbotActivity extends AppCompatActivity implements
             }
         }
     };
+
+    @Override
+    public void onInit(int status) {
+        if (status == TextToSpeech.SUCCESS) {
+            int result = tts.setLanguage(Locale.forLanguageTag(selectedLanguageCode));
+            if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
+                Log.e(TAG, "Language not supported");
+            }
+        } else {
+            Log.e(TAG, "Initialization failed");
+        }
+    }
 }

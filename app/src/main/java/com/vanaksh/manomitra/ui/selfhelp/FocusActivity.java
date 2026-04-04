@@ -1,10 +1,12 @@
 package com.vanaksh.manomitra.ui.selfhelp;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Color;
 import android.graphics.Typeface;
-import android.media.MediaPlayer;
 import android.os.Bundle;
-import android.os.CountDownTimer;
 import android.view.Gravity;
 import android.view.View;
 import android.view.WindowManager;
@@ -16,6 +18,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -35,9 +38,38 @@ public class FocusActivity extends AppCompatActivity {
     private ExtendedFloatingActionButton btnStartPause;
     private FloatingActionButton btnStop, btnRestart;
     private ProgressBar progressBar;
-    private CountDownTimer countDownTimer;
 
-    private MediaPlayer mediaPlayer;
+    private BroadcastReceiver timerUpdateReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (FocusTimerService.ACTION_TIMER_TICK.equals(intent.getAction())) {
+                mTimeLeftInMillis = intent.getLongExtra(FocusTimerService.EXTRA_TIME_LEFT, mStartTimeInMillis);
+                mStartTimeInMillis = intent.getLongExtra(FocusTimerService.EXTRA_TOTAL_TIME, mStartTimeInMillis);
+                mTimerRunning = intent.getBooleanExtra("is_running", false);
+                updateInterface();
+
+                if (mTimerRunning) {
+                    tvHint.setVisibility(View.INVISIBLE);
+                    btnStartPause.setText("Pause");
+                    btnStartPause.setIconResource(R.drawable.ic_pause);
+                    getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+                } else {
+                    btnStartPause.setText("Resume");
+                    btnStartPause.setIconResource(R.drawable.ic_play);
+                    getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+                }
+            } else if (FocusTimerService.ACTION_TIMER_FINISH.equals(intent.getAction())) {
+                mTimerRunning = false;
+                mTimeLeftInMillis = 0;
+                btnStartPause.setText("Start");
+                btnStartPause.setIconResource(R.drawable.ic_play);
+                tvHint.setVisibility(View.VISIBLE);
+                progressBar.setProgress(0);
+                getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+                updateInterface();
+            }
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,6 +100,40 @@ public class FocusActivity extends AppCompatActivity {
         btnRestart.setOnClickListener(v -> restartTimer());
 
         updateInterface();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(FocusTimerService.ACTION_TIMER_TICK);
+        filter.addAction(FocusTimerService.ACTION_TIMER_FINISH);
+        LocalBroadcastManager.getInstance(this).registerReceiver(timerUpdateReceiver, filter);
+
+        // Tell service we are visible
+        Intent foregroundIntent = new Intent(this, FocusTimerService.class);
+        foregroundIntent.setAction(FocusTimerService.ACTION_APP_FOREGROUNDED);
+        startService(foregroundIntent);
+
+        // Request latest status from service so UI syncs instantly
+        Intent statusIntent = new Intent(this, FocusTimerService.class);
+        statusIntent.setAction(FocusTimerService.ACTION_REQUEST_STATUS);
+        startService(statusIntent);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(timerUpdateReceiver);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        // Tell service we are backgrounded (so it can show the notification)
+        Intent backgroundIntent = new Intent(this, FocusTimerService.class);
+        backgroundIntent.setAction(FocusTimerService.ACTION_APP_BACKGROUNDED);
+        startService(backgroundIntent);
     }
 
     private void showTimePicker() {
@@ -129,69 +195,41 @@ public class FocusActivity extends AppCompatActivity {
     }
 
     private void startTimer() {
-        // PREVENT SLEEP: Keep screen on
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        Intent serviceIntent = new Intent(this, FocusTimerService.class);
+        serviceIntent.setAction(FocusTimerService.ACTION_START);
+        serviceIntent.putExtra(FocusTimerService.EXTRA_TOTAL_TIME, mStartTimeInMillis);
+        serviceIntent.putExtra(FocusTimerService.EXTRA_TIME_LEFT, mTimeLeftInMillis);
 
-        countDownTimer = new CountDownTimer(mTimeLeftInMillis, 100) {
-            @Override
-            public void onTick(long l) {
-                mTimeLeftInMillis = l;
-                updateInterface();
-            }
-
-            @Override
-            public void onFinish() {
-                mTimerRunning = false;
-                // ALLOW SLEEP: Timer finished
-                getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-
-                btnStartPause.setText("Start");
-                btnStartPause.setIconResource(R.drawable.ic_play);
-                tvHint.setVisibility(View.VISIBLE);
-                progressBar.setProgress(0);
-                playCompletionSound();
-            }
-        }.start();
+        // We use startService here instead of startForegroundService to prevent
+        // immediate Android 8+ crashes, since we only want foreground notification in the background.
+        startService(serviceIntent);
 
         mTimerRunning = true;
         tvHint.setVisibility(View.INVISIBLE);
         btnStartPause.setText("Pause");
         btnStartPause.setIconResource(R.drawable.ic_pause);
-    }
-
-    private void playCompletionSound() {
-        try {
-            // Ensure success_voice.mp3 is in res/raw/
-            mediaPlayer = MediaPlayer.create(this, R.raw.success_voice);
-            if (mediaPlayer != null) {
-                mediaPlayer.start();
-                mediaPlayer.setOnCompletionListener(MediaPlayer::release);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 
     private void pauseTimer() {
-        if (countDownTimer != null) countDownTimer.cancel();
+        Intent serviceIntent = new Intent(this, FocusTimerService.class);
+        serviceIntent.setAction(FocusTimerService.ACTION_PAUSE);
+        startService(serviceIntent);
+        
         mTimerRunning = false;
-
-        // ALLOW SLEEP: App is paused
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-
         btnStartPause.setText("Resume");
         btnStartPause.setIconResource(R.drawable.ic_play);
     }
 
     private void stopTimer() {
-        if (countDownTimer != null) countDownTimer.cancel();
-        if (mediaPlayer != null && mediaPlayer.isPlaying()) mediaPlayer.stop();
-
-        // ALLOW SLEEP: Timer stopped
-        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        Intent serviceIntent = new Intent(this, FocusTimerService.class);
+        serviceIntent.setAction(FocusTimerService.ACTION_STOP);
+        startService(serviceIntent);
 
         mTimerRunning = false;
         mTimeLeftInMillis = mStartTimeInMillis;
+        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         tvHint.setVisibility(View.VISIBLE);
         updateInterface();
         btnStartPause.setText("Start");
@@ -204,6 +242,11 @@ public class FocusActivity extends AppCompatActivity {
     }
 
     private void updateInterface() {
+        // FAILSAFE: Prevent Divide By Zero Exception
+        if (mStartTimeInMillis <= 0) {
+            mStartTimeInMillis = 1;
+        }
+
         long secondsLeft = mTimeLeftInMillis / 1000;
         int hours = (int) (secondsLeft / 3600);
         int minutes = (int) ((secondsLeft % 3600) / 60);
@@ -219,11 +262,6 @@ public class FocusActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (mediaPlayer != null) {
-            mediaPlayer.release();
-            mediaPlayer = null;
-        }
-        // Cleanup flags just in case
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 }

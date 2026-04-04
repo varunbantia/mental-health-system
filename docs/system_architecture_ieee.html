@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ManoMitra Architecture (IEEE 2-Column)</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #ffffff;
+            display: flex;
+            justify-content: center;
+            padding: 15px;
+        }
+
+        .diagram-container {
+            width: 500px;
+            /* Standard 2-column width approx 3.5 inches */
+            background: #ffffff;
+        }
+
+        .layer {
+            border: 1.5px dashed #94a3b8;
+            border-radius: 4px;
+            padding: 12px 10px 10px;
+            margin-bottom: 12px;
+            position: relative;
+            background: #f8fafc;
+        }
+
+        .layer-label {
+            position: absolute;
+            top: -10px;
+            left: 12px;
+            background: #ffffff;
+            padding: 0 6px;
+            font-size: 11px;
+            font-weight: 700;
+            color: #334155;
+            text-transform: uppercase;
+        }
+
+        .module {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 6px 8px;
+            border: 1.2px solid #cbd5e1;
+            border-radius: 3px;
+            font-size: 10px;
+            font-weight: 500;
+            color: #1e293b;
+            background: #ffffff;
+            min-height: 32px;
+            margin-bottom: 5px;
+        }
+
+        .module-accent {
+            border-color: #93c5fd;
+            background: #eff6ff;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+        }
+
+        .grid-1 {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 4px;
+        }
+
+        .sub-section {
+            border: 1px solid #e2e8f0;
+            border-radius: 3px;
+            padding: 8px 10px 10px;
+            position: relative;
+            background: #ffffff;
+            margin-top: 8px;
+        }
+
+        .sub-label {
+            position: absolute;
+            top: -8px;
+            left: 10px;
+            background: #ffffff;
+            padding: 0 4px;
+            font-size: 9px;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+        }
+
+        .inter-layer-arrow {
+            text-align: center;
+            padding: 2px 0;
+        }
+
+        .inter-layer-arrow svg {
+            display: block;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="diagram-container">
+        <!-- Simplified/Stacked Version for Narrow Columns -->
+        <div class="layer">
+            <div class="layer-label">L1: Presentation</div>
+            <div class="grid-2">
+                <div class="module module-accent">Student Portal</div>
+                <div class="module module-accent">Counselor Portal</div>
+                <div class="module">Wellness Hub</div>
+                <div class="module">Chat / Booking</div>
+            </div>
+        </div>
+        <div class="inter-layer-arrow"><svg width="40" height="15">
+                <path d="M20,0 L20,12" stroke="#64748b" stroke-width="1.2" marker-end="url(#ah)" />
+                <defs>
+                    <marker id="ah" markerWidth="6" markerHeight="4" refX="6" refY="2" orient="auto">
+                        <polygon points="0 0, 6 2, 0 4" fill="#64748b" />
+                    </marker>
+                </defs>
+            </svg></div>
+        <div class="layer">
+            <div class="layer-label">L2: App Logic</div>
+            <div class="grid-1">
+                <div class="module" style="background:#f1f5f9;">Role-Based Access Control</div>
+                <div class="module" style="background:#f1f5f9;">Booking State Machine</div>
+            </div>
+        </div>
+        <div class="inter-layer-arrow"><svg width="40" height="15">
+                <path d="M20,0 L20,12" stroke="#64748b" stroke-width="1.2" marker-end="url(#ah)" />
+            </svg></div>
+        <div class="layer">
+            <div class="layer-label">L3: AI Safety & LLM</div>
+            <div class="sub-section">
+                <div class="sub-label">On-Device Risk Classifier</div>
+                <div class="grid-2">
+                    <div class="module" style="font-size:9px;">USE Embedding</div>
+                    <div class="module" style="font-size:9px;">FCNN Decision</div>
+                </div>
+            </div>
+            <div style="text-align:center; padding:5px 0;"><span
+                    style="font-size:9px; font-weight:700; color:#dc2626;">IF RISK ≥ 0.5 → CRISIS PATH</span></div>
+            <div class="module" style="border-color:#16a34a; background:#f0fdf4;">GPT-4o Integration (Safe Path)</div>
+        </div>
+        <div class="inter-layer-arrow"><svg width="40" height="15">
+                <path d="M20,0 L20,12" stroke="#64748b" stroke-width="1.2" marker-end="url(#ah)" />
+            </svg></div>
+        <div class="layer">
+            <div class="layer-label">L4: Firebase Cloud</div>
+            <div class="grid-2">
+                <div class="module" style="border-color:#fed7aa; background:#fff7ed;">Firestore Data</div>
+                <div class="module" style="border-color:#fca5a5; background:#fef2f2;">Auth & Security</div>
+            </div>
+        </div>
+        <div class="inter-layer-arrow"><svg width="40" height="15">
+                <path d="M20,0 L20,12" stroke="#64748b" stroke-width="1.2" marker-end="url(#ah)" />
+            </svg></div>
+        <div class="layer">
+            <div class="layer-label">L5: Analytics</div>
+            <div class="module" style="border-color:#a7f3d0; background:#ecfdf5;">Aggregated Crisis Metics & Trends
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

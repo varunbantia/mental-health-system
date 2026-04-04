@@ -1,0 +1,54 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper Functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+    
+    function hasRole(role) {
+      return isSignedIn() && getUserData().role == role;
+    }
+    
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    // User Collection Rules
+    match /users/{userId} {
+      // Anyone can read their own profile
+      allow read: if isOwner(userId) || hasRole('admin') || hasRole('moderator');
+      
+      // Users can update their own non-role fields (validation required in real app)
+      allow update: if isOwner(userId) && 
+                    (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['role']));
+                    
+      // Only Admin can update everything including roles
+      allow write: if hasRole('admin');
+      
+      // Allow creation during signup (if not exists)
+      allow create: if isSignedIn() && request.auth.uid == userId;
+    }
+    
+    // Posts (Peer Support)
+    match /posts/{postId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn();
+      // Only owner can edit, Moderator/Admin can delete/moderate
+      allow update: if isOwner(resource.data.userId) || hasRole('moderator') || hasRole('admin');
+      allow delete: if hasRole('moderator') || hasRole('admin');
+    }
+    
+    // Appointments
+    match /appointments/{appointmentId} {
+      // Counsellors can read/write their assigned appointments
+      // Users can read/write their own appointments
+      allow read, write: if isSignedIn(); // Simplified for now
+    }
+  }
+}

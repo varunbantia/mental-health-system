@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:layout_marginTop="16dp">
+
+    <TextView
+        android:id="@+id/tvRoleLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/select_role_label"
+        android:textSize="14sp"
+        android:textColor="?attr/colorOnSurface"
+        android:textStyle="bold"
+        android:alpha="0.8" />
+
+    <!-- Shown when user already has a stored role (returning user) -->
+    <TextView
+        android:id="@+id/tvRoleStatus"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="15sp"
+        android:textColor="?attr/colorPrimary"
+        android:textStyle="bold"
+        android:layout_marginTop="4dp"
+        android:visibility="gone" />
+
+    <com.google.android.material.chip.ChipGroup
+        android:id="@+id/chipGroupRole"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        app:singleSelection="true"
+        app:selectionRequired="false"
+        app:chipSpacingHorizontal="8dp"
+        app:chipSpacingVertical="4dp">
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chipStudent"
+            style="@style/Widget.Material3.Chip.Filter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/role_student"
+            app:shapeAppearanceOverlay="@style/RoleChipShape"
+            app:chipBackgroundColor="@color/role_chip_bg"
+            app:chipStrokeColor="@color/role_chip_stroke"
+            app:chipStrokeWidth="1dp"
+            app:checkedIconVisible="true"
+            app:checkedIconTint="?attr/colorOnPrimary" />
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chipVolunteer"
+            style="@style/Widget.Material3.Chip.Filter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/role_volunteer"
+            app:shapeAppearanceOverlay="@style/RoleChipShape"
+            app:chipBackgroundColor="@color/role_chip_bg"
+            app:chipStrokeColor="@color/role_chip_stroke"
+            app:chipStrokeWidth="1dp"
+            app:checkedIconVisible="true"
+            app:checkedIconTint="?attr/colorOnPrimary" />
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chipCounsellor"
+            style="@style/Widget.Material3.Chip.Filter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/role_counsellor"
+            app:shapeAppearanceOverlay="@style/RoleChipShape"
+            app:chipBackgroundColor="@color/role_chip_bg"
+            app:chipStrokeColor="@color/role_chip_stroke"
+            app:chipStrokeWidth="1dp"
+            app:checkedIconVisible="true"
+            app:checkedIconTint="?attr/colorOnPrimary" />
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chipModerator"
+            style="@style/Widget.Material3.Chip.Filter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/role_moderator"
+            app:shapeAppearanceOverlay="@style/RoleChipShape"
+            app:chipBackgroundColor="@color/role_chip_bg"
+            app:chipStrokeColor="@color/role_chip_stroke"
+            app:chipStrokeWidth="1dp"
+            app:checkedIconVisible="true"
+            app:checkedIconTint="?attr/colorOnPrimary" />
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chipAdmin"
+            style="@style/Widget.Material3.Chip.Filter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/role_admin"
+            app:shapeAppearanceOverlay="@style/RoleChipShape"
+            app:chipBackgroundColor="@color/role_chip_bg"
+            app:chipStrokeColor="@color/role_chip_stroke"
+            app:chipStrokeWidth="1dp"
+            app:checkedIconVisible="true"
+            app:checkedIconTint="?attr/colorOnPrimary" />
+
+    </com.google.android.material.chip.ChipGroup>
+
+</LinearLayout>

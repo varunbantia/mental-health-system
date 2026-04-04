@@ -14,7 +14,7 @@
         android:gravity="center"
         android:orientation="vertical"
         android:padding="32dp"
-        android:background="#D1F2E5"> <TextView
+        android:background="?attr/colorPrimaryContainer"> <TextView
         android:id="@+id/item_category"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -23,7 +23,7 @@
         android:textSize="14sp"
         android:textAllCaps="true"
         android:textStyle="bold"
-        android:textColor="#576574"
+        android:textColor="?attr/colorOutline"
         android:layout_marginBottom="40dp"/>
 
         <FrameLayout
@@ -38,7 +38,7 @@
                 android:layout_height="40dp"
                 android:layout_gravity="center"
                 android:src="@drawable/ic_coffee"
-                app:tint="#2D3436"/>
+                app:tint="?attr/colorOnSurface"/>
         </FrameLayout>
 
         <TextView
@@ -47,7 +47,7 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:text="Close your eyes and count to 10 slowly."
-            android:textColor="#2D3436"
+            android:textColor="?attr/colorOnSurface"
             android:textSize="26sp"
             android:textStyle="bold"
             android:lineSpacingExtra="8dp"/>

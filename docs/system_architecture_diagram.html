@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ManoMitra System Architecture</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+    background: #ffffff;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 20px;
+    min-height: 100vh;
+  }
+
+  .diagram-container {
+    width: 1200px;
+    background: #ffffff;
+    padding: 30px 25px 25px;
+  }
+
+  /* ========== LAYERS ========== */
+  .layer {
+    border: 1.8px dashed #94a3b8;
+    border-radius: 6px;
+    padding: 14px 16px 16px;
+    margin-bottom: 14px;
+    position: relative;
+    background: #f8fafc;
+  }
+
+  .layer-label {
+    position: absolute;
+    top: -11px;
+    left: 18px;
+    background: #ffffff;
+    padding: 0 8px;
+    font-size: 11.5px;
+    font-weight: 700;
+    color: #334155;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+  }
+
+  /* ========== MODULE BOXES ========== */
+  .module {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 8px 12px;
+    border: 1.5px solid #cbd5e1;
+    border-radius: 4px;
+    font-size: 10.5px;
+    font-weight: 500;
+    color: #1e293b;
+    background: #ffffff;
+    min-height: 36px;
+    line-height: 1.3;
+    vertical-align: top;
+  }
+
+  .module-accent {
+    border-color: #93c5fd;
+    background: #eff6ff;
+  }
+
+  .module-dark {
+    border-color: #64748b;
+    background: #f1f5f9;
+    font-weight: 600;
+  }
+
+  .module-crisis {
+    border-color: #f87171;
+    background: #fef2f2;
+  }
+
+  .module-decision {
+    border: 1.5px solid #fbbf24;
+    background: #fffbeb;
+    clip-path: polygon(10% 0%, 90% 0%, 100% 50%, 90% 100%, 10% 100%, 0% 50%);
+    padding: 8px 24px;
+  }
+
+  /* ========== GRID LAYOUTS ========== */
+  .modules-grid {
+    display: grid;
+    gap: 8px;
+    margin-top: 6px;
+  }
+
+  .grid-5 { grid-template-columns: repeat(5, 1fr); }
+  .grid-4 { grid-template-columns: repeat(4, 1fr); }
+  .grid-3 { grid-template-columns: repeat(3, 1fr); }
+  .grid-2 { grid-template-columns: 1fr 1fr; }
+
+  /* ========== SUB-SECTIONS ========== */
+  .sub-section {
+    border: 1.2px solid #e2e8f0;
+    border-radius: 4px;
+    padding: 10px 12px 12px;
+    position: relative;
+    background: #ffffff;
+    margin-top: 8px;
+  }
+
+  .sub-label {
+    position: absolute;
+    top: -9px;
+    left: 12px;
+    background: #ffffff;
+    padding: 0 6px;
+    font-size: 9.5px;
+    font-weight: 600;
+    color: #64748b;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+
+  /* ========== AI LAYER LAYOUT ========== */
+  .ai-grid {
+    display: grid;
+    grid-template-columns: 1fr 110px 1fr;
+    gap: 10px;
+    margin-top: 6px;
+    align-items: start;
+  }
+
+  .ai-center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding-top: 10px;
+    gap: 8px;
+  }
+
+  /* ========== ARROWS (SVG overlay) ========== */
+  .arrow-section {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0;
+    padding: 6px 0;
+    position: relative;
+  }
+
+  .arrow-section svg {
+    display: block;
+  }
+
+  /* ========== ANNOTATION ========== */
+  .annotation {
+    font-size: 9px;
+    color: #94a3b8;
+    font-style: italic;
+    margin-top: 4px;
+  }
+
+  .note-box {
+    display: inline-block;
+    font-size: 9px;
+    color: #64748b;
+    border: 1px solid #e2e8f0;
+    border-radius: 3px;
+    padding: 3px 7px;
+    background: #f8fafc;
+    font-style: italic;
+  }
+
+  /* ========== FLOW ARROWS BETWEEN LAYERS ========== */
+  .inter-layer-arrow {
+    text-align: center;
+    padding: 2px 0;
+    margin: 0;
+  }
+
+  .inter-layer-arrow svg {
+    display: block;
+    margin: 0 auto;
+  }
+
+  /* ========== DECISION DIAMOND ========== */
+  .diamond-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    margin: 4px 0;
+  }
+
+  .diamond {
+    width: 90px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    font-weight: 600;
+    color: #92400e;
+    position: relative;
+  }
+
+  .diamond svg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .diamond span {
+    position: relative;
+    z-index: 1;
+  }
+
+  .branch-label {
+    font-size: 8.5px;
+    font-weight: 600;
+    color: #64748b;
+    padding: 0 6px;
+    white-space: nowrap;
+  }
+
+  .branch-label-crisis { color: #dc2626; }
+  .branch-label-safe { color: #16a34a; }
+
+  /* ========== FIREBASE COLLECTIONS ========== */
+  .collection-item {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 10px;
+    border: 1.2px solid #fed7aa;
+    border-radius: 3px;
+    font-size: 9.5px;
+    font-weight: 500;
+    color: #9a3412;
+    background: #fff7ed;
+    min-height: 28px;
+  }
+
+  .collection-icon {
+    margin-right: 5px;
+    font-size: 11px;
+  }
+
+  /* ========== ANALYTICS ========== */
+  .analytics-item {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 10px;
+    border: 1.2px solid #a7f3d0;
+    border-radius: 3px;
+    font-size: 9.5px;
+    font-weight: 500;
+    color: #065f46;
+    background: #ecfdf5;
+    min-height: 28px;
+  }
+
+  /* ========== SECURITY BADGE ========== */
+  .security-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 8.5px;
+    color: #dc2626;
+    font-weight: 600;
+    border: 1px solid #fca5a5;
+    border-radius: 3px;
+    padding: 2px 6px;
+    background: #fef2f2;
+  }
+
+  /* Print styles */
+  @media print {
+    body { padding: 0; background: white; }
+    .diagram-container { width: 100%; padding: 10px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="diagram-container">
+
+  <!-- ═══════════════════ LAYER 1: PRESENTATION ═══════════════════ -->
+  <div class="layer">
+    <div class="layer-label">Layer 1 — Presentation Layer (Android Client)</div>
+    <div class="modules-grid grid-5" style="margin-top:10px;">
+      <div class="module module-accent">Student<br>Dashboard</div>
+      <div class="module module-accent">Counselor<br>Dashboard</div>
+      <div class="module module-accent">Admin<br>Dashboard</div>
+      <div class="module">Login &amp;<br>Authentication</div>
+      <div class="module">Booking<br>Interface</div>
+    </div>
+    <div class="modules-grid grid-5" style="margin-top:8px;">
+      <div class="module">Chat<br>Interface</div>
+      <div class="module">Peer<br>Community</div>
+      <div class="module">Wellness Hub<br><span style="font-size:8.5px;color:#64748b;">(Breathing, Music, Timer)</span></div>
+      <div class="module">Multilingual<br>Resource Loader</div>
+      <div class="note-box" style="align-self:center;">Navigation:<br>Activity-based<br>(No Fragments)</div>
+    </div>
+  </div>
+
+  <!-- Arrow: Layer 1 → Layer 2 -->
+  <div class="inter-layer-arrow">
+    <svg width="120" height="20" viewBox="0 0 120 20">
+      <defs><marker id="ah1" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#64748b"/></marker></defs>
+      <line x1="60" y1="2" x2="60" y2="16" stroke="#64748b" stroke-width="1.5" marker-end="url(#ah1)"/>
+      <text x="72" y="12" font-size="8" fill="#94a3b8" font-family="Inter,sans-serif">UI Events</text>
+    </svg>
+  </div>
+
+  <!-- ═══════════════════ LAYER 2: APPLICATION LOGIC ═══════════════════ -->
+  <div class="layer">
+    <div class="layer-label">Layer 2 — Application Logic Layer</div>
+    <div class="modules-grid grid-4" style="margin-top:10px;">
+      <div class="module module-dark">Role-Based Access<br>Controller</div>
+      <div class="module module-dark">One-Account-One-Role<br>Enforcement</div>
+      <div class="module module-dark">Booking State Machine<br><span style="font-size:8px;color:#64748b;">Pending → Confirmed → Completed</span></div>
+      <div class="module module-dark">Secure Chat<br>Validator</div>
+    </div>
+    <div class="modules-grid grid-3" style="margin-top:8px;">
+      <div class="module">Notification Manager<br><span style="font-size:8.5px;color:#64748b;">(Local Notifications)</span></div>
+      <div class="module">Session Manager<br><span style="font-size:8.5px;color:#64748b;">(SharedPreferences)</span></div>
+      <div class="module">Input Validation<br>Module</div>
+    </div>
+  </div>
+
+  <!-- Arrow: Layer 2 → Layer 3 -->
+  <div class="inter-layer-arrow">
+    <svg width="200" height="20" viewBox="0 0 200 20">
+      <defs><marker id="ah2" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#64748b"/></marker></defs>
+      <line x1="100" y1="2" x2="100" y2="16" stroke="#64748b" stroke-width="1.5" marker-end="url(#ah2)"/>
+      <text x="112" y="12" font-size="8" fill="#94a3b8" font-family="Inter,sans-serif">User Messages / Input</text>
+    </svg>
+  </div>
+
+  <!-- ═══════════════════ LAYER 3: AI INTELLIGENCE ═══════════════════ -->
+  <div class="layer">
+    <div class="layer-label">Layer 3 — AI Intelligence Layer</div>
+
+    <div class="ai-grid">
+      <!-- LEFT: On-Device Safety Model -->
+      <div class="sub-section">
+        <div class="sub-label">A) On-Device Safety Model</div>
+        <div class="modules-grid grid-2" style="margin-top:8px;">
+          <div class="module module-accent">Universal Sentence<br>Encoder<br><span style="font-size:8px;color:#3b82f6;">(512-d Embedding)</span></div>
+          <div class="module module-accent">FCNN Risk<br>Classifier</div>
+        </div>
+        <div class="modules-grid grid-2" style="margin-top:6px;">
+          <div class="module">Keyword Fallback<br>Engine</div>
+          <div class="module" style="border-color:#fbbf24;background:#fffbeb;">Risk Threshold<br>Decision<br><span style="font-size:8px;color:#92400e;font-weight:600;">Score ≥ 0.5</span></div>
+        </div>
+      </div>
+
+      <!-- CENTER: Decision Branch -->
+      <div class="ai-center">
+        <svg width="90" height="56" viewBox="0 0 90 56">
+          <polygon points="45,2 88,28 45,54 2,28" fill="#fffbeb" stroke="#fbbf24" stroke-width="1.5"/>
+          <text x="45" y="25" text-anchor="middle" font-size="8.5" font-weight="600" fill="#92400e" font-family="Inter,sans-serif">Risk</text>
+          <text x="45" y="35" text-anchor="middle" font-size="8.5" font-weight="600" fill="#92400e" font-family="Inter,sans-serif">≥ 0.5 ?</text>
+        </svg>
+
+        <div style="display:flex;width:100%;justify-content:space-between;padding:0 2px;">
+          <div style="text-align:center;">
+            <svg width="12" height="18"><defs><marker id="ahL" markerWidth="6" markerHeight="5" refX="6" refY="2.5" orient="auto"><polygon points="0 0,6 2.5,0 5" fill="#dc2626"/></marker></defs><line x1="6" y1="0" x2="6" y2="14" stroke="#dc2626" stroke-width="1.2" marker-end="url(#ahL)"/></svg>
+            <div class="branch-label branch-label-crisis" style="font-size:7.5px;">YES</div>
+          </div>
+          <div style="text-align:center;">
+            <svg width="12" height="18"><defs><marker id="ahR" markerWidth="6" markerHeight="5" refX="6" refY="2.5" orient="auto"><polygon points="0 0,6 2.5,0 5" fill="#16a34a"/></marker></defs><line x1="6" y1="0" x2="6" y2="14" stroke="#16a34a" stroke-width="1.2" marker-end="url(#ahR)"/></svg>
+            <div class="branch-label branch-label-safe" style="font-size:7.5px;">NO</div>
+          </div>
+        </div>
+
+        <!-- Crisis Module (mini) -->
+        <div class="sub-section" style="width:100%;padding:6px 8px 8px;">
+          <div class="sub-label" style="font-size:8px;">B) Crisis Intervention</div>
+          <div style="margin-top:8px;display:flex;flex-direction:column;gap:4px;">
+            <div class="module module-crisis" style="font-size:9px;padding:5px 6px;min-height:auto;">Helpline<br>Suggestion</div>
+            <div class="module module-crisis" style="font-size:9px;padding:5px 6px;min-height:auto;">Counselor Booking<br>Redirect</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: LLM Integration -->
+      <div class="sub-section">
+        <div class="sub-label">C) LLM Integration Layer</div>
+        <div style="display:flex;flex-direction:column;gap:6px;margin-top:10px;">
+          <div class="module module-accent" style="width:100%;display:flex;justify-content:center;">OpenAI GPT API</div>
+          <div class="module" style="width:100%;display:flex;justify-content:center;">Persona Prompt<br>Layer</div>
+          <div class="module" style="width:100%;display:flex;justify-content:center;">Context Memory<br><span style="font-size:8.5px;color:#64748b;">(Last 10 Messages)</span></div>
+        </div>
+        <div class="annotation" style="margin-top:6px;text-align:center;">Safe input → LLM response</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Arrow: Layer 3 → Layer 4 -->
+  <div class="inter-layer-arrow">
+    <svg width="260" height="20" viewBox="0 0 260 20">
+      <defs>
+        <marker id="ah3" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#64748b"/></marker>
+        <marker id="ah3u" markerWidth="8" markerHeight="6" refX="0" refY="3" orient="auto"><polygon points="8 0, 0 3, 8 6" fill="#64748b"/></marker>
+      </defs>
+      <line x1="120" y1="4" x2="120" y2="16" stroke="#64748b" stroke-width="1.5" marker-end="url(#ah3)"/>
+      <line x1="140" y1="16" x2="140" y2="4" stroke="#64748b" stroke-width="1.5" marker-end="url(#ah3u)"/>
+      <text x="152" y="13" font-size="8" fill="#94a3b8" font-family="Inter,sans-serif">Secure Read / Write</text>
+    </svg>
+  </div>
+
+  <!-- ═══════════════════ LAYER 4: BACKEND CLOUD ═══════════════════ -->
+  <div class="layer">
+    <div class="layer-label">Layer 4 — Backend Cloud Layer (Firebase)</div>
+
+    <div style="display:grid;grid-template-columns:200px 1fr;gap:12px;margin-top:10px;">
+      <!-- Firebase Auth -->
+      <div class="sub-section">
+        <div class="sub-label">Authentication</div>
+        <div style="margin-top:8px;">
+          <div class="module module-dark" style="width:100%;display:flex;justify-content:center;">Firebase<br>Authentication</div>
+          <div style="margin-top:5px;">
+            <div class="security-badge" style="width:100%;justify-content:center;">
+              <span>🔒</span> Secure Token-Based Access
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Firestore Collections -->
+      <div class="sub-section">
+        <div class="sub-label">Cloud Firestore Database</div>
+        <div class="modules-grid grid-5" style="margin-top:8px;">
+          <div class="collection-item"><span class="collection-icon">📁</span>Users</div>
+          <div class="collection-item"><span class="collection-icon">📁</span>Roles</div>
+          <div class="collection-item"><span class="collection-icon">📁</span>Bookings<br><span style="font-size:8px;color:#c2410c;margin-left:16px;">(Real-Time)</span></div>
+          <div class="collection-item"><span class="collection-icon">📁</span>Chats</div>
+          <div class="collection-item"><span class="collection-icon">📁</span>Analytics<br><span style="font-size:8px;color:#c2410c;margin-left:16px;">Summary</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Arrow: Layer 4 → Layer 5 -->
+  <div class="inter-layer-arrow">
+    <svg width="200" height="20" viewBox="0 0 200 20">
+      <defs><marker id="ah4" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#64748b"/></marker></defs>
+      <line x1="100" y1="2" x2="100" y2="16" stroke="#64748b" stroke-width="1.5" marker-end="url(#ah4)"/>
+      <text x="112" y="12" font-size="8" fill="#94a3b8" font-family="Inter,sans-serif">Aggregated Events</text>
+    </svg>
+  </div>
+
+  <!-- ═══════════════════ LAYER 5: DATA & ANALYTICS ═══════════════════ -->
+  <div class="layer">
+    <div class="layer-label">Layer 5 — Data &amp; Analytics Layer</div>
+    <div class="modules-grid grid-5" style="margin-top:10px;">
+      <div class="analytics-item">Anonymous<br>Aggregation Engine</div>
+      <div class="analytics-item">Crisis Trend<br>Counter</div>
+      <div class="analytics-item">Role-Based<br>User Count</div>
+      <div class="analytics-item">Appointment<br>Metrics</div>
+      <div class="analytics-item">Category-Based<br>Emotion Analysis</div>
+    </div>
+    <div style="display:flex;justify-content:flex-end;margin-top:6px;">
+      <div class="security-badge">
+        <span>🔒</span> No Raw Message Exposure — Aggregated Metrics Only
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════ FLOW LEGENDS ═══════════════════ -->
+  <div style="margin-top:14px;display:flex;gap:24px;justify-content:center;flex-wrap:wrap;">
+    <div style="display:flex;align-items:center;gap:6px;">
+      <svg width="30" height="10"><line x1="0" y1="5" x2="24" y2="5" stroke="#64748b" stroke-width="1.5"/><polygon points="24,2 30,5 24,8" fill="#64748b"/></svg>
+      <span style="font-size:8.5px;color:#64748b;font-weight:500;">Data Flow</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:6px;">
+      <svg width="30" height="10"><line x1="0" y1="5" x2="24" y2="5" stroke="#dc2626" stroke-width="1.5"/><polygon points="24,2 30,5 24,8" fill="#dc2626"/></svg>
+      <span style="font-size:8.5px;color:#64748b;font-weight:500;">Crisis Path</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:6px;">
+      <svg width="30" height="10"><line x1="0" y1="5" x2="24" y2="5" stroke="#16a34a" stroke-width="1.5"/><polygon points="24,2 30,5 24,8" fill="#16a34a"/></svg>
+      <span style="font-size:8.5px;color:#64748b;font-weight:500;">Safe Path (LLM)</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:6px;">
+      <div style="width:20px;height:12px;border:1.2px dashed #94a3b8;border-radius:2px;"></div>
+      <span style="font-size:8.5px;color:#64748b;font-weight:500;">Layer Boundary</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:6px;">
+      <svg width="20" height="14"><polygon points="10,1 19,7 10,13 1,7" fill="#fffbeb" stroke="#fbbf24" stroke-width="1"/></svg>
+      <span style="font-size:8.5px;color:#64748b;font-weight:500;">Decision Node</span>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

@@ -20,6 +20,7 @@ import com.google.firebase.auth.UserInfo;
 import com.vanaksh.manomitra.R;
 import com.vanaksh.manomitra.booking.BookingActivity;
 import com.vanaksh.manomitra.community.CommunityActivity;
+import com.vanaksh.manomitra.community.PeerSupportActivity;
 import com.vanaksh.manomitra.resouurces.ResourcesActivity;
 import com.vanaksh.manomitra.ui.chatbot.ChatbotActivity;
 import com.vanaksh.manomitra.ui.crisis.EmergencyActivity;
@@ -27,6 +28,11 @@ import com.vanaksh.manomitra.wellness.LearmActivity;
 import com.vanaksh.manomitra.wellness.RelaxActivity;
 import com.vanaksh.manomitra.wellness.SleepActivity;
 import com.vanaksh.manomitra.wellness.WellnessHubActivity;
+import com.vanaksh.manomitra.ui.roles.CounsellorChatListActivity;
+import com.vanaksh.manomitra.ui.roles.StudentChatListActivity;
+import com.google.android.material.badge.BadgeDrawable;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 
 // Import your Booking Activity
 // import com.vanaksh.manomitra.booking.BookingActivity;
@@ -42,7 +48,7 @@ public class DashboardActivity extends AppCompatActivity {
     private CardView cardRelax, cardLearn, cardSleep;
 
     // Support Section Buttons
-    private View btnBookNow, btnFindCommunity;
+    private View btnBookNow, btnFindCommunity, btnViewMessages;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +68,18 @@ public class DashboardActivity extends AppCompatActivity {
         setupWellnessTools();
         setupNavigation();
         setupSupportActions(); // New method for the Book/Find buttons
+        setupUnreadBadge();
+        requestNotificationPermission();
+    }
+
+    private void requestNotificationPermission() {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+            if (androidx.core.content.ContextCompat.checkSelfPermission(this,
+                    android.Manifest.permission.POST_NOTIFICATIONS) != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                androidx.core.app.ActivityCompat.requestPermissions(this,
+                        new String[] { android.Manifest.permission.POST_NOTIFICATIONS }, 101);
+            }
+        }
     }
 
     @Override
@@ -77,7 +95,7 @@ public class DashboardActivity extends AppCompatActivity {
         bottomNavigation = findViewById(R.id.bottomNavigation);
         cardStartChat = findViewById(R.id.cardStartChat);
         tvEmergencySupport = findViewById(R.id.tvEmergencySupport);
-        moodButtons = new ImageButton[]{
+        moodButtons = new ImageButton[] {
                 findViewById(R.id.btnMoodGood),
                 findViewById(R.id.btnMoodOkay),
                 findViewById(R.id.btnMoodLow),
@@ -91,6 +109,7 @@ public class DashboardActivity extends AppCompatActivity {
         // Initialize Book and Find buttons from the included layouts
         btnBookNow = findViewById(R.id.btnBookNow);
         btnFindCommunity = findViewById(R.id.btnFindCommunity);
+        btnViewMessages = findViewById(R.id.btnViewMessages);
     }
 
     private void setupSupportActions() {
@@ -107,7 +126,25 @@ public class DashboardActivity extends AppCompatActivity {
         if (btnFindCommunity != null) {
             btnFindCommunity.setOnClickListener(v -> {
                 v.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
-                startActivity(new Intent(this, CommunityActivity.class));
+                startActivity(new Intent(this, PeerSupportActivity.class));
+            });
+        }
+
+        // "Messages" button logic
+        if (btnViewMessages != null) {
+            btnViewMessages.setOnClickListener(v -> {
+                v.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
+                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                if (user != null) {
+                    FirebaseFirestore.getInstance().collection("counsellors").document(user.getUid()).get()
+                            .addOnSuccessListener(doc -> {
+                                if (doc.exists()) {
+                                    startActivity(new Intent(this, CounsellorChatListActivity.class));
+                                } else {
+                                    startActivity(new Intent(this, StudentChatListActivity.class));
+                                }
+                            });
+                }
             });
         }
     }
@@ -172,14 +209,20 @@ public class DashboardActivity extends AppCompatActivity {
     private void setupNavigation() {
         bottomNavigation.setOnItemSelectedListener(item -> {
             int id = item.getItemId();
-            if (id == R.id.nav_home) return true;
+            if (id == R.id.nav_home)
+                return true;
 
             Intent intent;
-            if (id == R.id.nav_resources) intent = new Intent(this, ResourcesActivity.class);
-            else if (id == R.id.nav_book) intent = new Intent(this, BookingActivity.class);
-            else if (id == R.id.nav_community) intent = new Intent(this, CommunityActivity.class);
-            else if (id == R.id.nav_settings) intent = new Intent(this, SettingsActivity.class);
-            else return false;
+            if (id == R.id.nav_resources)
+                intent = new Intent(this, ResourcesActivity.class);
+            else if (id == R.id.nav_book)
+                intent = new Intent(this, BookingActivity.class);
+            else if (id == R.id.nav_community)
+                intent = new Intent(this, PeerSupportActivity.class);
+            else if (id == R.id.nav_settings)
+                intent = new Intent(this, SettingsActivity.class);
+            else
+                return false;
 
             intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
             startActivity(intent);
@@ -196,7 +239,8 @@ public class DashboardActivity extends AppCompatActivity {
 
                 // Option B: Directly open Phone Dialer with a helpline number
                 // String phone = "911"; // Replace with actual helpline
-                // Intent intent = new Intent(Intent.ACTION_DIAL, android.net.Uri.parse("tel:" + phone));
+                // Intent intent = new Intent(Intent.ACTION_DIAL, android.net.Uri.parse("tel:" +
+                // phone));
                 // startActivity(intent);
             });
             cardStartChat.setOnClickListener(v -> {
@@ -204,5 +248,28 @@ public class DashboardActivity extends AppCompatActivity {
                 startActivity(new Intent(this, ChatbotActivity.class));
             });
         }
+    }
+
+    private void setupUnreadBadge() {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user == null)
+            return;
+
+        FirebaseFirestore.getInstance().collectionGroup("history")
+                .whereEqualTo("receiverId", user.getUid())
+                .whereEqualTo("isRead", false)
+                .addSnapshotListener((snapshot, e) -> {
+                    if (e != null || snapshot == null)
+                        return;
+
+                    int count = snapshot.size();
+                    BadgeDrawable badge = bottomNavigation.getOrCreateBadge(R.id.nav_book);
+                    if (count > 0) {
+                        badge.setVisible(true);
+                        badge.setNumber(count);
+                    } else {
+                        badge.setVisible(false);
+                    }
+                });
     }
 }

@@ -15,6 +15,7 @@ import com.vanaksh.manomitra.ui.selfhelp.MusicActivity;
 import com.vanaksh.manomitra.ui.selfhelp.NatureActivity;
 import com.vanaksh.manomitra.ui.selfhelp.OceanActivity;
 import com.vanaksh.manomitra.selftips.SelfCareActivity;
+import com.vanaksh.manomitra.wellness.RelaxActivity;
 import com.vanaksh.manomitra.wellness.SleepActivity;
 
 import java.util.HashMap;
@@ -66,7 +67,7 @@ public class ResourcesActivity extends AppCompatActivity {
         findViewById(R.id.cardBreathing).setOnClickListener(v -> navigateTo(BreathingActivity.class));
         findViewById(R.id.cardExam).setOnClickListener(v -> navigateTo(ExamStressActivity.class));
         findViewById(R.id.cardSleep).setOnClickListener(v -> navigateTo(SleepActivity.class));
-        findViewById(R.id.cardEvening).setOnClickListener(v -> navigateTo(BreathingActivity.class));
+        findViewById(R.id.cardEvening).setOnClickListener(v -> navigateTo(RelaxActivity.class));
         findViewById(R.id.cardSelfCare).setOnClickListener(v -> navigateTo(SelfCareActivity.class));
         findViewById(R.id.cardMorning).setOnClickListener(v -> navigateTo(MorningActivity.class));
         // Explore More (Horizontal)

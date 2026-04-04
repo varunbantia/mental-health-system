@@ -4,6 +4,11 @@
 
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
 
     <application
         android:allowBackup="true"
@@ -14,6 +19,37 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.ManoMitra">
+        <activity
+            android:name=".ui.roles.VolunteerActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.roles.CounsellorActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.roles.ModeratorActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.roles.ViewAppointmentsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.roles.ManageSessionsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.roles.CrisisAlertsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.roles.CounsellorChatListActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.roles.ChatActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".ui.admin.CounsellorApplicationsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.roles.AdminActivity"
+            android:exported="false" />
         <activity
             android:name=".selftips.SavedTipsActivity"
             android:exported="false" />
@@ -42,7 +78,19 @@
             android:name=".ui.selfhelp.ExamStressActivity"
             android:exported="false" />
         <activity
+            android:name=".booking.CounsellorApplyActivity"
+            android:exported="false" />
+        <activity
             android:name=".booking.BookingActivity"
+            android:exported="false" />
+        <activity
+            android:name=".booking.DateTimeSelectionActivity"
+            android:exported="false" />
+        <activity
+            android:name=".booking.BookingConfirmationActivity"
+            android:exported="false" />
+        <activity
+            android:name=".booking.BookingStatusActivity"
             android:exported="false" />
         <activity
             android:name=".wellness.LearmActivity"
@@ -56,6 +104,24 @@
         <activity
             android:name=".community.CommunityActivity"
             android:exported="false" />
+        <activity
+            android:name=".community.PeerSupportActivity"
+            android:exported="false"
+            android:theme="@style/Theme.ManoMitra" />
+        <activity
+            android:name=".community.CreatePostActivity"
+            android:exported="false"
+            android:theme="@style/Theme.ManoMitra"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".community.PostDetailActivity"
+            android:exported="false"
+            android:theme="@style/Theme.ManoMitra"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".ui.roles.ModeratorDashboardActivity"
+            android:exported="false"
+            android:theme="@style/Theme.ManoMitra" />
         <activity
             android:name=".wellness.WellnessHubActivity"
             android:exported="false" />
@@ -82,13 +148,33 @@
             android:exported="false" />
         <activity
             android:name=".ui.chatbot.ChatbotActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".ui.chatbot.ChatHistoryActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".ui.crisis.EmergencyActivity"
             android:exported="false" />
         <activity
             android:name=".ui.profile.ProfileActivity"
             android:exported="false" />
+        <activity
+            android:name=".ui.roles.StudentChatActivity"
+            android:exported="false"
+            android:theme="@style/Theme.ManoMitra"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".ui.roles.StudentChatListActivity"
+            android:exported="false"
+            android:theme="@style/Theme.ManoMitra" />
+        <activity
+            android:name=".ui.roles.CounsellorChatActivity"
+            android:exported="false"
+            android:theme="@style/Theme.ManoMitra"
+            android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".ui.assessment.ResultActivity"
             android:exported="false" />
@@ -116,6 +202,28 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <service
+            android:name=".util.ManoMitraMessagingService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+        
+        <service 
+            android:name=".ui.selfhelp.FocusTimerService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="focus_timer" />
+        </service>
+
+        <service 
+            android:name=".ui.selfhelp.NatureSoundService"
+            android:exported="false"
+            android:foregroundServiceType="mediaPlayback" />
+
         <activity
             android:name=".MainActivity"
             android:exported="false" />

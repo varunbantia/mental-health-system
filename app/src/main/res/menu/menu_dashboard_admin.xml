@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/nav_analytics"
+        android:icon="@drawable/ic_settings"
+        android:title="Analytics" />
+    <item
+        android:id="@+id/nav_manage_users"
+        android:icon="@drawable/ic_group"
+        android:title="Users" />
+    <item
+        android:id="@+id/nav_manage_universities"
+        android:icon="@drawable/ic_home"
+        android:title="Universities" />
+    <item
+        android:id="@+id/nav_system_settings"
+        android:icon="@drawable/ic_settings"
+        android:title="Settings" />
+</menu>

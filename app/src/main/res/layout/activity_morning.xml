@@ -1,10 +1,354 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/md_theme_light_background"
     tools:context=".ui.selfhelp.MorningActivity">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <!-- Top App Bar -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingTop="48dp"
+        android:paddingBottom="16dp"
+        android:paddingHorizontal="16dp"
+        android:background="@color/md_theme_light_primary">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="16dp"
+            android:text="Morning Energy"
+            android:textColor="@color/md_theme_light_onPrimary"
+            android:textSize="24sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:paddingBottom="40dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- 1. Quote of the Day Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="@color/md_theme_light_outline"
+                app:cardBackgroundColor="@color/md_theme_light_secondaryContainer">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp"
+                    android:gravity="center">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Quote of the Day"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/md_theme_light_onSecondaryContainer"
+                        android:layout_marginBottom="8dp"/>
+
+                    <TextView
+                        android:id="@+id/tv_daily_quote"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textAlignment="center"
+                        android:textSize="18sp"
+                        android:fontFamily="sans-serif-medium"
+                        android:textColor="@color/md_theme_light_onSurface"
+                        android:text="Loading..."
+                        android:lineSpacingExtra="4dp" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- 2. Daily Intention -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="@color/md_theme_light_outline"
+                app:cardBackgroundColor="@color/md_theme_light_surface">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="My Daily Intention"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/md_theme_light_onSurface" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Set one main focus for your day."
+                        android:textSize="14sp"
+                        android:textColor="@color/md_theme_light_onBackground"
+                        android:layout_marginBottom="12dp"/>
+
+                    <EditText
+                        android:id="@+id/et_intention"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Today I choose..."
+                        android:background="@android:color/transparent"
+                        android:padding="12dp"
+                        android:textSize="16sp"
+                        android:textColor="@color/md_theme_light_onSurface"
+                        android:textColorHint="#888888"
+                        android:inputType="textCapSentences|textMultiLine"
+                        android:maxLines="3"/>
+                        
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/md_theme_light_outline"
+                        android:layout_marginBottom="12dp"/>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_save_intention"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Save Intention"
+                        android:textColor="@color/md_theme_light_onPrimary"
+                        app:backgroundTint="@color/md_theme_light_primary"
+                        app:cornerRadius="8dp"/>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- 3. Breathing Tool -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="@color/md_theme_light_outline"
+                app:cardBackgroundColor="@color/md_theme_light_surface">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp"
+                    android:gravity="center">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="1-Minute Awaken Breathe"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/md_theme_light_onSurface"
+                        android:layout_marginBottom="16dp"/>
+
+                    <FrameLayout
+                        android:layout_width="140dp"
+                        android:layout_height="140dp"
+                        android:layout_marginBottom="16dp">
+                        
+                        <ProgressBar
+                            android:id="@+id/progress_breath"
+                            style="?android:attr/progressBarStyleHorizontal"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:progressDrawable="@drawable/circular_progress"
+                            android:max="100"
+                            android:progress="0"
+                            android:indeterminate="false" />
+                            
+                        <TextView
+                            android:id="@+id/tv_breath_instruction"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:text="Ready"
+                            android:textSize="20sp"
+                            android:textColor="@color/md_theme_light_primary"
+                            android:textStyle="bold"/>
+                    </FrameLayout>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_start_breathing"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Start 60s Breathing"
+                        android:textColor="@color/md_theme_light_onPrimary"
+                        app:backgroundTint="@color/md_theme_light_primary"
+                        app:cornerRadius="8dp"/>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- 4. Gratitude Journal -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="@color/md_theme_light_outline"
+                app:cardBackgroundColor="@color/md_theme_light_surface">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Morning Gratitude"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/md_theme_light_onSurface"
+                        android:layout_marginBottom="12dp"/>
+
+                    <EditText
+                        android:id="@+id/et_gratitude_1"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="1. I am grateful for..."
+                        android:textSize="16sp"
+                        android:layout_marginBottom="8dp"/>
+                        
+                    <EditText
+                        android:id="@+id/et_gratitude_2"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="2. I am grateful for..."
+                        android:textSize="16sp"
+                        android:layout_marginBottom="8dp"/>
+                        
+                    <EditText
+                        android:id="@+id/et_gratitude_3"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="3. I am grateful for..."
+                        android:textSize="16sp"
+                        android:layout_marginBottom="12dp"/>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_save_gratitude"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Save Gratitude"
+                        android:textColor="@color/md_theme_light_onPrimary"
+                        app:backgroundTint="@color/md_theme_light_primary"
+                        app:cornerRadius="8dp"/>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- 5. Habits Checklist -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="@color/md_theme_light_outline"
+                app:cardBackgroundColor="@color/md_theme_light_surface">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Morning Habits"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/md_theme_light_onSurface"
+                        android:layout_marginBottom="12dp"/>
+
+                    <CheckBox
+                        android:id="@+id/cb_water"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Drank a glass of water"
+                        android:textSize="16sp"
+                        android:textColor="@color/md_theme_light_onSurface"
+                        app:buttonTint="@color/md_theme_light_primary"
+                        android:layout_marginBottom="8dp"/>
+                        
+                    <CheckBox
+                        android:id="@+id/cb_sunlight"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Got 5+ minutes of sunlight"
+                        android:textSize="16sp"
+                        android:textColor="@color/md_theme_light_onSurface"
+                        app:buttonTint="@color/md_theme_light_primary"
+                        android:layout_marginBottom="8dp"/>
+
+                    <CheckBox
+                        android:id="@+id/cb_no_phone"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="No screen for first 30 mins"
+                        android:textSize="16sp"
+                        android:textColor="@color/md_theme_light_onSurface"
+                        app:buttonTint="@color/md_theme_light_primary"
+                        android:layout_marginBottom="8dp"/>
+                        
+                    <CheckBox
+                        android:id="@+id/cb_stretch"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Stretched / Moved my body"
+                        android:textSize="16sp"
+                        android:textColor="@color/md_theme_light_onSurface"
+                        app:buttonTint="@color/md_theme_light_primary"
+                        android:layout_marginBottom="8dp"/>
+                        
+                    <CheckBox
+                        android:id="@+id/cb_made_bed"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Made my bed"
+                        android:textSize="16sp"
+                        android:textColor="@color/md_theme_light_onSurface"
+                        app:buttonTint="@color/md_theme_light_primary" />
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

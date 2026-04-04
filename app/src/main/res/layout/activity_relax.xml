@@ -1,10 +1,207 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@drawable/sunset_gradient"
     tools:context=".wellness.RelaxActivity">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <!-- Header (No Back Button) -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:paddingTop="48dp"
+        android:paddingBottom="16dp"
+        android:paddingHorizontal="16dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Evening Wind Down"
+            android:textColor="#FFFFFF"
+            android:textSize="24sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:paddingBottom="24dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="16dp"
+            android:paddingTop="8dp">
+
+            <!-- PMR Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="0dp"
+                app:cardBackgroundColor="#33FFFFFF"
+                app:strokeWidth="1dp"
+                app:strokeColor="#40FFFFFF"
+                android:layout_marginBottom="24dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="24dp"
+                    android:gravity="center">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Guided Muscle Relaxation"
+                        android:textColor="#FFFFFF"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="16dp" />
+
+                    <TextView
+                        android:id="@+id/tv_pmr_instruction"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:minLines="2"
+                        android:text="Ready to release today's physical stress?"
+                        android:textColor="#E0E0E0"
+                        android:textSize="16sp"
+                        android:textAlignment="center"
+                        android:lineSpacingExtra="4dp"
+                        android:layout_marginBottom="20dp" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_start_pmr"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Start Guidance"
+                        app:cornerRadius="20dp"
+                        app:backgroundTint="#FFFFFF"
+                        android:textColor="#3F51B5" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Gratitude Journal"
+                android:textColor="#FFFFFF"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="List 3 things you are grateful for today. This helps shift your mind into a positive state for deep sleep."
+                android:textColor="#B0BEC5"
+                android:textSize="14sp"
+                android:layout_marginBottom="16dp" />
+
+            <!-- Gratitude Inputs -->
+            <EditText
+                android:id="@+id/et_gratitude_1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/shape_breathing_circle"
+                android:backgroundTint="#22FFFFFF"
+                android:hint="1. I'm grateful for..."
+                android:textColor="#FFFFFF"
+                android:textColorHint="#B0BEC5"
+                android:padding="16dp"
+                android:textSize="16sp"
+                android:layout_marginBottom="12dp" />
+
+            <EditText
+                android:id="@+id/et_gratitude_2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/shape_breathing_circle"
+                android:backgroundTint="#22FFFFFF"
+                android:hint="2. Another thing was..."
+                android:textColor="#FFFFFF"
+                android:textColorHint="#B0BEC5"
+                android:padding="16dp"
+                android:textSize="16sp"
+                android:layout_marginBottom="12dp" />
+
+            <EditText
+                android:id="@+id/et_gratitude_3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/shape_breathing_circle"
+                android:backgroundTint="#22FFFFFF"
+                android:hint="3. Finally, I'm happy about..."
+                android:textColor="#FFFFFF"
+                android:textColorHint="#B0BEC5"
+                android:padding="16dp"
+                android:textSize="16sp"
+                android:layout_marginBottom="24dp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Evening Reflection"
+                android:textColor="#FFFFFF"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="16dp" />
+
+            <!-- Simple Mood Rating -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center">
+
+                <TextView
+                    android:id="@+id/tv_mood_sad"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="😔"
+                    android:textSize="32sp"
+                    android:alpha="0.5"
+                    android:layout_marginHorizontal="8dp" />
+
+                <TextView
+                    android:id="@+id/tv_mood_neutral"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="😐"
+                    android:textSize="32sp"
+                    android:alpha="0.5"
+                    android:layout_marginHorizontal="8dp" />
+
+                <TextView
+                    android:id="@+id/tv_mood_happy"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="😊"
+                    android:textSize="32sp"
+                    android:alpha="0.5"
+                    android:layout_marginHorizontal="8dp" />
+
+                <TextView
+                    android:id="@+id/tv_mood_amazing"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="🤩"
+                    android:textSize="32sp"
+                    android:alpha="0.5"
+                    android:layout_marginHorizontal="8dp" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

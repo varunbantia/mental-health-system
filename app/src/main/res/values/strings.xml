@@ -16,4 +16,49 @@
     <string name="user_message_placeholder">User message</string>
     <string name="bot_message_placeholder">Bot message</string>
     <string name="bot_message_speak_desc">Speak message</string>
+
+    <!-- Role Selection -->
+    <string name="select_role_label">Select your role to continue</string>
+    <string name="role_student">Student</string>
+    <string name="role_volunteer">Volunteer</string>
+    <string name="role_counsellor">Counsellor</string>
+    <string name="role_moderator">Moderator</string>
+    <string name="role_admin">Admin</string>
+    <string name="role_mismatch_title">Access Denied</string>
+    <string name="role_mismatch_message">You are not authorized to log in as this role.</string>
+    <string name="role_anonymous_error_title">Role Restricted</string>
+    <string name="role_anonymous_error_message">Anonymous users can only continue as Student.</string>
+    <string name="role_required_message">Please select a role to continue</string>    <!-- Peer Support Strings -->
+    <string name="title_peer_support">Peer Support</string>
+    <string name="hint_search_posts">Search posts…</string>
+    <string name="category_anxiety">Anxiety</string>
+    <string name="category_depression">Depression</string>
+    <string name="category_academic_stress">Academic Stress</string>
+    <string name="category_relationships">Relationships</string>
+    <string name="category_family">Family</string>
+    <string name="category_general">General Support</string>
+    <string name="btn_new_post">New Post</string>
+    <string name="label_anonymous">Post Anonymously</string>
+    <string name="hint_post_title">Title (Required)</string>
+    <string name="hint_post_description">Share your thoughts…</string>
+    <string name="error_title_required">Title is required</string>
+    <string name="error_desc_required">Description is required</string>
+    <string name="crisis_alert_title">Immediate Help Available</string>
+    <string name="crisis_alert_msg">It sounds like you\’re going through a very difficult time. Please reach out to our emergency helplines for immediate support.</string>
+    <string name="btn_get_help">Need Immediate Help?</string>
+    <string name="status_pending">Pending Review</string>
+    <string name="status_reviewed">Reviewed</string>
+    <string name="status_answered">Answered</string>
+    <string name="badge_volunteer">Volunteer</string>
+    <string name="badge_moderator">Moderator</string>
+    <string name="label_replies">%1$d Replies</string>
+    <string name="hint_write_reply">Write a reply…</string>
+    <string name="btn_submit">Submit</string>
+    <string name="btn_cancel">Cancel</string>
+    <string name="toast_post_success">Post published!</string>
+    <string name="menu_report">Report Post</string>
+    <string name="tab_pending">Pending</string>
+    <string name="tab_flagged">Flagged</string>
+    <string name="tab_escalated">Escalated</string>
+
 </resources>

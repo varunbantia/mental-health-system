@@ -1,10 +1,231 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#0A0F24"
     tools:context=".wellness.SleepActivity">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <!-- Top App Bar Fixed Dark Mode -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingTop="48dp"
+        android:paddingBottom="16dp"
+        android:paddingHorizontal="16dp"
+        android:background="#151C36">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Sleep Better Tonight"
+            android:textColor="#FFFFFF"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:gravity="center" />
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:paddingBottom="24dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="16dp"
+            android:paddingTop="16dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Good evening. A healthy sleep routine ensures you wake up completely refreshed and panic-free."
+                android:textColor="#B0BEC5"
+                android:textSize="14sp"
+                android:lineSpacingExtra="4dp"
+                android:layout_marginBottom="16dp" />
+
+            <!-- Optimal Bedtime Calculator Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="16dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="#252F52"
+                app:cardBackgroundColor="#151C36"
+                android:layout_marginBottom="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Smart Bedtime Calculator"
+                        android:textColor="#FFFFFF"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="8dp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Human sleep occurs in exact 90-minute REM cycles. Waking up in the middle of a cycle causes intense morning grogginess. When do you need to wake up tomorrow?"
+                        android:textColor="#B0BEC5"
+                        android:textSize="14sp"
+                        android:lineSpacingExtra="2dp"
+                        android:layout_marginBottom="16dp" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_pick_time"
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
+                        android:text="Select Wake-Up Time"
+                        android:textColor="#FFFFFF"
+                        app:backgroundTint="#00838F"
+                        app:cornerRadius="12dp" />
+
+                    <LinearLayout
+                        android:id="@+id/layout_results"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:visibility="gone"
+                        android:layout_marginTop="16dp">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Aim to fall asleep at one of these optimal times (already includes 15 minutes to fall asleep):"
+                            android:textColor="#80CBC4"
+                            android:textSize="14sp"
+                            android:layout_marginBottom="12dp" />
+
+                        <TextView
+                            android:id="@+id/tv_cycle_6"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="• 10:15 PM (6 Full Cycles - Recommended)"
+                            android:textColor="#FFFFFF"
+                            android:textSize="16sp"
+                            android:layout_marginBottom="8dp" />
+                            
+                        <TextView
+                            android:id="@+id/tv_cycle_5"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="• 11:45 PM (5 Cycles)"
+                            android:textColor="#FFFFFF"
+                            android:textSize="16sp"
+                            android:layout_marginBottom="8dp"/>
+
+                        <TextView
+                            android:id="@+id/tv_cycle_4"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="• 01:15 AM (4 Cycles - Minimum)"
+                            android:textColor="#FFFFFF"
+                            android:textSize="16sp" />
+
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Pre-Sleep Checklist -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="16dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="#252F52"
+                app:cardBackgroundColor="#151C36"
+                android:layout_marginBottom="24dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Wind Down Checklist"
+                        android:textColor="#FFFFFF"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="16dp" />
+
+                    <CheckBox
+                        android:id="@+id/cb_caffeine"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="No caffeine for the past 6 hours"
+                        android:textColor="#E0E0E0"
+                        app:buttonTint="#00838F"
+                        android:layout_marginBottom="8dp"/>
+
+                    <CheckBox
+                        android:id="@+id/cb_screens"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Put away phone/screens 30 mins ago"
+                        android:textColor="#E0E0E0"
+                        app:buttonTint="#00838F"
+                        android:layout_marginBottom="8dp"/>
+
+                    <CheckBox
+                        android:id="@+id/cb_lights"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Dimmed lights and cooled the room"
+                        android:textColor="#E0E0E0"
+                        app:buttonTint="#00838F"
+                        android:layout_marginBottom="8dp"/>
+
+                    <CheckBox
+                        android:id="@+id/cb_read"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Read a book or listened to calm music"
+                        android:textColor="#E0E0E0"
+                        app:buttonTint="#00838F" />
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Nature Sounds Link -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Having trouble drifting off? Our customized noise mixer is scientifically proven to lower your heart rate."
+                android:textColor="#B0BEC5"
+                android:textSize="13sp"
+                android:textAlignment="center"
+                android:layout_marginHorizontal="24dp"
+                android:layout_marginBottom="8dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_open_nature"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="match_parent"
+                android:layout_height="64dp"
+                android:text="Open Nature Sounds 🎵"
+                android:textColor="#00E5FF"
+                app:strokeColor="#00838F"
+                app:strokeWidth="2dp"
+                app:cornerRadius="16dp" />
+
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

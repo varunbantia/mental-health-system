@@ -12,10 +12,10 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-
 import com.vanaksh.manomitra.R;
 import com.vanaksh.manomitra.databinding.ActivityMainBinding;
 import com.vanaksh.manomitra.ui.dashboard.DashboardActivity;
+import com.vanaksh.manomitra.utils.RoleManager;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -74,7 +74,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void navigateToMain() {
-        Intent intent = new Intent(MainActivity.this, DashboardActivity.class);
+        // Use the cached role to route to the correct role-based dashboard
+        String cachedRole = RoleManager.getCachedRole(this);
+        if (cachedRole == null || cachedRole.isEmpty()) {
+            cachedRole = RoleManager.ROLE_USER; // fallback to student
+        }
+        Class<?> target = RoleManager.getTargetActivity(cachedRole);
+        Intent intent = new Intent(MainActivity.this, target);
         // Clear activity stack so user can't "Go Back" to the disclaimer
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
