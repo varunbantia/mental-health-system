@@ -66,6 +66,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.SetOptions;
+import com.vanaksh.manomitra.BuildConfig;
 import com.vanaksh.manomitra.R;
 import com.vanaksh.manomitra.data.model.ChatMessage;
 import com.vanaksh.manomitra.safety.ChatController;
@@ -126,8 +127,6 @@ public class ChatbotActivity extends AppCompatActivity
     private MediaPlayer chatPlayer;
 
     // --- 🎤 Recorder & Playback State ---
-    private static final String OPENAI_API_KEY = "YOUR_OPENAI_API_KEY"; // TODO: Replace with actual key or use BuildConfig
-    // BuildConfig
     private File audioFile;
     private MediaRecorder recorder;
     private ImageButton currentlyPlayingButton;
@@ -191,7 +190,7 @@ public class ChatbotActivity extends AppCompatActivity
         setupInputListeners();
 
         // Initialize Safety Layer with ChatGPT
-        chatController = new ChatController(this, OPENAI_API_KEY);
+        chatController = new ChatController(this, BuildConfig.OPENAI_API_KEY);
 
     }
 
