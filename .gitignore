@@ -1,5 +1,5 @@
-*.iml
-.gradle
+.gradle/
+.idea/
 /local.properties
 /.idea/caches
 /.idea/libraries
@@ -8,8 +8,15 @@
 /.idea/navEditor.xml
 /.idea/assetWizardSettings.xml
 .DS_Store
-/build
+**/build/
 /captures
 .externalNativeBuild
 .cxx
 local.properties
+training/
+*.log
+push_error*.txt
+track_sizes.txt
+large_files.txt
+recent_commits.txt
+tflite_env/

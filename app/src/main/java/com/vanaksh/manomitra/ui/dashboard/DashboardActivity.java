@@ -30,6 +30,7 @@ import com.vanaksh.manomitra.wellness.SleepActivity;
 import com.vanaksh.manomitra.wellness.WellnessHubActivity;
 import com.vanaksh.manomitra.ui.roles.CounsellorChatListActivity;
 import com.vanaksh.manomitra.ui.roles.StudentChatListActivity;
+import com.vanaksh.manomitra.ui.selfhelp.MusicActivity;
 import com.google.android.material.badge.BadgeDrawable;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
@@ -171,7 +172,7 @@ public class DashboardActivity extends AppCompatActivity {
     private void setupWellnessTools() {
         cardRelax.setOnClickListener(v -> {
             v.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
-            startActivity(new Intent(this, RelaxActivity.class));
+            startActivity(new Intent(this, MusicActivity.class));
         });
 
         cardLearn.setOnClickListener(v -> {

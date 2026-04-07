@@ -99,12 +99,10 @@ public class RelaxActivity extends AppCompatActivity {
         EditText et2 = findViewById(R.id.et_gratitude_2);
         EditText et3 = findViewById(R.id.et_gratitude_3);
 
-        // Load saved entries
         et1.setText(prefs.getString("grat_1", ""));
         et2.setText(prefs.getString("grat_2", ""));
         et3.setText(prefs.getString("grat_3", ""));
 
-        // Save on change
         TextWatcher tw = new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
             @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
@@ -138,10 +136,12 @@ public class RelaxActivity extends AppCompatActivity {
             });
         }
 
-        // Restore mood if saved
         int savedMoodId = prefs.getInt("selected_mood", -1);
         if (savedMoodId != -1) {
-            findViewById(savedMoodId).setAlpha(1.0f);
+            View savedView = findViewById(savedMoodId);
+            if (savedView != null) {
+                savedView.setAlpha(1.0f);
+            }
         }
     }
 
@@ -150,7 +150,6 @@ public class RelaxActivity extends AppCompatActivity {
         String lastDate = prefs.getString("last_relax_date", "");
 
         if (!today.equals(lastDate)) {
-            // New day, clear gratitude and mood
             prefs.edit()
                 .putString("grat_1", "")
                 .putString("grat_2", "")
@@ -158,8 +157,6 @@ public class RelaxActivity extends AppCompatActivity {
                 .putInt("selected_mood", -1)
                 .putString("last_relax_date", today)
                 .apply();
-            
-            recreate(); // Refresh UI to show empty state
         }
     }
 

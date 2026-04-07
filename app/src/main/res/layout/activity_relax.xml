@@ -9,7 +9,7 @@
     android:background="@drawable/sunset_gradient"
     tools:context=".wellness.RelaxActivity">
 
-    <!-- Header (No Back Button) -->
+    <!-- Header -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -28,7 +28,7 @@
             android:textStyle="bold" />
     </LinearLayout>
 
-    <ScrollView
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:clipToPadding="false"
@@ -99,14 +99,6 @@
                 android:textSize="18sp"
                 android:textStyle="bold"
                 android:layout_marginBottom="8dp" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="List 3 things you are grateful for today. This helps shift your mind into a positive state for deep sleep."
-                android:textColor="#B0BEC5"
-                android:textSize="14sp"
-                android:layout_marginBottom="16dp" />
 
             <!-- Gratitude Inputs -->
             <EditText
@@ -203,5 +195,5 @@
             </LinearLayout>
 
         </LinearLayout>
-    </ScrollView>
+    </androidx.core.widget.NestedScrollView>
 </LinearLayout>

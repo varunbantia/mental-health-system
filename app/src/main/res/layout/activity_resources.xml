@@ -194,6 +194,7 @@
                             app:tint="#2563EB" />
 
                         <TextView
+                            android:id="@+id/tvBreathingTitle"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="12dp"
@@ -229,6 +230,7 @@
                             app:tint="#7C3AED" />
 
                         <TextView
+                            android:id="@+id/tvExamTitle"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="12dp"
@@ -264,6 +266,7 @@
                             app:tint="#15803D" />
 
                         <TextView
+                            android:id="@+id/tvSleepTitleCard"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="12dp"
@@ -273,6 +276,7 @@
                             android:textStyle="bold" />
 
                         <TextView
+                            android:id="@+id/tvSleepDescCard"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
@@ -307,6 +311,7 @@
                             app:tint="#4338CA" />
 
                         <TextView
+                            android:id="@+id/tvEveningTitle"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="12dp"
@@ -343,6 +348,7 @@
                             app:tint="#EC4899" />
 
                         <TextView
+                            android:id="@+id/tvSelfCareTitle"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="12dp"
@@ -376,6 +382,7 @@
                             app:tint="#F97316" />
 
                         <TextView
+                            android:id="@+id/tvMorningTitle"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="12dp"
@@ -385,6 +392,7 @@
                             android:textStyle="bold" />
 
                         <TextView
+                            android:id="@+id/tvMorningDesc"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
@@ -432,7 +440,7 @@
                         >
                         <LinearLayout style="@style/WellnessCardContent">
                             <ImageView style="@style/WellnessCardIcon" android:src="@drawable/ic_music" app:tint="#7C3AED" android:background="@drawable/bg_icon_circle"/>
-                            <TextView style="@style/WellnessCardText" android:text="Relaxing\nMusic" />
+                            <TextView id="@+id/tvMusicTitle" style="@style/WellnessCardText" android:text="Relaxing\nMusic" />
                         </LinearLayout>
                     </com.google.android.material.card.MaterialCardView>
 
@@ -442,7 +450,7 @@
                         app:cardBackgroundColor="#EEF6FF">
                         <LinearLayout style="@style/WellnessCardContent">
                             <ImageView style="@style/WellnessCardIcon" android:background="@drawable/bg_icon_circle" android:src="@drawable/ic_brain" app:tint="#2563EB" />
-                            <TextView style="@style/WellnessCardText" android:text="Focus &amp;\nStudy" />
+                            <TextView id="@+id/tvFocusTitle" style="@style/WellnessCardText" android:text="Focus &amp;\nStudy" />
                         </LinearLayout>
                     </com.google.android.material.card.MaterialCardView>
 
@@ -452,7 +460,7 @@
                         app:cardBackgroundColor="#E6F4EA">
                         <LinearLayout style="@style/WellnessCardContent">
                             <ImageView style="@style/WellnessCardIcon" android:background="@drawable/bg_icon_circle" android:src="@drawable/ic_coffee" app:tint="#16A34A" />
-                            <TextView style="@style/WellnessCardText" android:text="Morning\nEnergy" />
+                            <TextView id="@+id/tvMorningEnergyTitle" style="@style/WellnessCardText" android:text="Morning\nEnergy" />
                         </LinearLayout>
                     </com.google.android.material.card.MaterialCardView>
 
@@ -462,7 +470,7 @@
                         app:cardBackgroundColor="#FFF7ED">
                         <LinearLayout style="@style/WellnessCardContent">
                             <ImageView style="@style/WellnessCardIcon" android:src="@drawable/ic_face" app:tint="#F97316" />
-                            <TextView style="@style/WellnessCardText" android:text="Positive\nAffirmations" />
+                            <TextView id="@+id/tvAffirmationsTitle" style="@style/WellnessCardText" android:text="Positive\nAffirmations" />
                         </LinearLayout>
                     </com.google.android.material.card.MaterialCardView>
 
@@ -470,21 +478,11 @@
                         android:id="@+id/cardSelfCareBoost"
                         style="@style/WellnessCardStyle"
                         app:cardBackgroundColor="#FDF2F8"
+                        android:layout_marginEnd="0dp"
                         >
                         <LinearLayout style="@style/WellnessCardContent">
                             <ImageView style="@style/WellnessCardIcon" android:background="@drawable/bg_icon_circle" android:src="@drawable/ic_tree" app:tint="#DB2777" />
-                            <TextView style="@style/WellnessCardText" android:text="Nature\nSounds" />
-                        </LinearLayout>
-                    </com.google.android.material.card.MaterialCardView>
-
-                    <com.google.android.material.card.MaterialCardView
-                        android:id="@+id/cardSleepSounds"
-                        style="@style/WellnessCardStyle"
-                        android:layout_marginEnd="0dp"
-                        app:cardBackgroundColor="#ECFEFF">
-                        <LinearLayout style="@style/WellnessCardContent">
-                            <ImageView style="@style/WellnessCardIcon" android:background="@drawable/bg_icon_circle" android:src="@drawable/ic_waves" app:tint="#0891B2" />
-                            <TextView style="@style/WellnessCardText" android:text="Ocean\nWaves" />
+                            <TextView id="@+id/tvNatureTitle" style="@style/WellnessCardText" android:text="Nature\nSounds" />
                         </LinearLayout>
                     </com.google.android.material.card.MaterialCardView>
 

@@ -37,9 +37,10 @@ public class NatureActivity extends AppCompatActivity {
         });
 
         setupRecyclerView();
-        
-        // Register receiver to get updates if the service is already running independently
-        LocalBroadcastManager.getInstance(this).registerReceiver(soundStateReceiver, 
+
+        // Register receiver to get updates if the service is already running
+        // independently
+        LocalBroadcastManager.getInstance(this).registerReceiver(soundStateReceiver,
                 new IntentFilter(NatureSoundService.BROADCAST_SOUND_STATE));
     }
 
@@ -48,16 +49,22 @@ public class NatureActivity extends AppCompatActivity {
         soundList = new ArrayList<>();
 
         // Populate exactly 10 track placeholders for the mixer
-        soundList.add(new SoundModel(1, "Soft Rain", android.R.drawable.ic_media_play, R.raw.success_voice));
-        soundList.add(new SoundModel(2, "Heavy Thunderstorm", android.R.drawable.ic_media_play, R.raw.success_voice));
-        soundList.add(new SoundModel(3, "Ocean Waves", android.R.drawable.ic_media_play, R.raw.success_voice));
-        soundList.add(new SoundModel(4, "Deep Forest", android.R.drawable.ic_media_play, R.raw.success_voice));
-        soundList.add(new SoundModel(5, "Crackling Fireplace", android.R.drawable.ic_media_play, R.raw.success_voice));
-        soundList.add(new SoundModel(6, "Wind Through Leaves", android.R.drawable.ic_media_play, R.raw.success_voice));
-        soundList.add(new SoundModel(7, "Flowing River", android.R.drawable.ic_media_play, R.raw.success_voice));
-        soundList.add(new SoundModel(8, "Crickets at Night", android.R.drawable.ic_media_play, R.raw.success_voice));
-        soundList.add(new SoundModel(9, "White Noise", android.R.drawable.ic_media_play, R.raw.success_voice));
-        soundList.add(new SoundModel(10, "Binaural Focus Focus", android.R.drawable.ic_media_play, R.raw.success_voice));
+        soundList.add(new SoundModel(1, "Soft Rain", android.R.drawable.ic_media_play, R.raw.softrain_voice));
+        soundList.add(
+                new SoundModel(2, "Heavy Thunderstorm", android.R.drawable.ic_media_play, R.raw.heavythunder_voice));
+        soundList.add(new SoundModel(3, "Ocean Waves", android.R.drawable.ic_media_play, R.raw.oceanwaves_voice));
+        soundList.add(new SoundModel(4, "Deep Forest", android.R.drawable.ic_media_play, R.raw.deepforest_voice));
+        soundList.add(
+                new SoundModel(5, "Crackling Fireplace", android.R.drawable.ic_media_play, R.raw.cracklingfire_voice));
+        soundList.add(
+                new SoundModel(6, "Wind Through Leaves", android.R.drawable.ic_media_play, R.raw.windleaves_voice));
+        soundList.add(new SoundModel(7, "Flowing River", android.R.drawable.ic_media_play, R.raw.flowingriver_voice));
+        soundList.add(
+                new SoundModel(8, "Crickets at Night", android.R.drawable.ic_media_play, R.raw.cricketnight_voice));
+        soundList.add(new SoundModel(9, "White Noise", android.R.drawable.ic_media_play, R.raw.whitenoise_voice));
+        soundList
+                .add(new SoundModel(10, "Binaural Focus Focus", android.R.drawable.ic_media_play,
+                        R.raw.binauralfocus_voice));
 
         adapter = new NatureSoundAdapter(soundList, new NatureSoundAdapter.OnSoundInteractionListener() {
             @Override
@@ -102,6 +109,7 @@ public class NatureActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         LocalBroadcastManager.getInstance(this).unregisterReceiver(soundStateReceiver);
-        // We do NOT stop the NatureSoundService here! It runs persistently in the background like requested.
+        // We do NOT stop the NatureSoundService here! It runs persistently in the
+        // background like requested.
     }
 }
