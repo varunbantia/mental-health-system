@@ -63,6 +63,7 @@ public class SafetyManager {
         if (customClassifier != null) {
             try {
                 // The message is physically handed over to the ML model here:
+                // the predict method is called here from CustomSafetyClassifier
                 mlScore = customClassifier.predict(message);
                 Log.d(TAG, "Custom ML Model score: " + mlScore);
             } catch (Exception e) {

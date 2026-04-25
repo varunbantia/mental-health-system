@@ -55,6 +55,7 @@ public class ChatController {
     /**
      * Core functionality linking the UI, the Safety Model, and ChatGPT.
      */
+    // this method is called by chatbotactitvity
     public void processMessageWithHistoryDetailed(String message,
             java.util.List<com.vanaksh.manomitra.data.model.ChatMessage> history, DetailedChatCallback callback) {
         if (message == null || message.trim().isEmpty()) {
